@@ -1,24 +1,24 @@
-"""OPCIONAL — Implementación con Strands Agents del asistente de onboarding.
+"""OPTIONAL — Strands Agents implementation of the onboarding assistant.
 
-Este archivo es el objetivo del **Lab 2** del workshop. El path por defecto
-(`agent/app.py`) corre SIN el SDK de Strands llamando a `build_plan()` directamente.
-Aquí, en cambio, un **agente Strands razona** y decide cuándo invocar cada tool.
+This file is the goal of **Lab 2** of the workshop. The default path
+(`agent/app.py`) runs WITHOUT the Strands SDK by calling `build_plan()` directly.
+Here, instead, a **Strands agent reasons** and decides when to invoke each tool.
 
-Requisitos para ejecutarlo (no necesarios para el path local de `agent/app.py`):
+Requirements to run it (not needed for the local path in `agent/app.py`):
 
-    # 1) Instalar el SDK (o descomentar las líneas en requirements.txt)
+    # 1) Install the SDK (or uncomment the lines in requirements.txt)
     pip install strands-agents bedrock-agentcore
 
-    # 2) Configurar credenciales AWS + acceso al modelo Bedrock
-    cp .env.example .env        # setea AWS_REGION y BEDROCK_MODEL_ID
+    # 2) Configure AWS credentials + Bedrock model access
+    cp .env.example .env        # set AWS_REGION and BEDROCK_MODEL_ID
 
-    # 3) Ejecutar el agente real
+    # 3) Run the real agent
     python -m agent.strands_agent \\
         --employee "Ada Lovelace" --email ada@example.com \\
         --profile backend-dev --project payments-platform
 
-Las tools envueltas aquí son EXACTAMENTE las mismas funciones locales que usa
-`agent/app.py`. La diferencia es quién las orquesta: antes nosotros, ahora el agente.
+The tools wrapped here are EXACTLY the same local functions used by
+`agent/app.py`. The difference is who orchestrates them: before it was us, now it's the agent.
 """
 from __future__ import annotations
 
@@ -34,38 +34,38 @@ from agent.tools.track_progress import mark_step_done as _mark_step_done
 try:
     from strands import Agent, tool
     from strands.models import BedrockModel
-except ImportError as exc:  # pragma: no cover - solo se dispara sin el SDK instalado
+except ImportError as exc:  # pragma: no cover - only triggers without the SDK installed
     raise SystemExit(
-        "\n[onboard-assistant] El SDK de Strands no está instalado.\n"
-        "Este es el path 'agente real' del workshop (Lab 2).\n"
-        "  1) Descomenta 'strands-agents' y 'bedrock-agentcore' en requirements.txt\n"
-        "     (o instala: pip install strands-agents bedrock-agentcore).\n"
-        "  2) Configura credenciales AWS y acceso al modelo Bedrock (.env).\n"
-        "  3) Para el path LOCAL sin SDK usa: python -m agent.app ...\n"
-        f"  (detalle del import: {exc})\n"
+        "\n[onboard-assistant] The Strands SDK is not installed.\n"
+        "This is the 'real agent' path of the workshop (Lab 2).\n"
+        "  1) Uncomment 'strands-agents' and 'bedrock-agentcore' in requirements.txt\n"
+        "     (or install: pip install strands-agents bedrock-agentcore).\n"
+        "  2) Configure AWS credentials and Bedrock model access (.env).\n"
+        "  3) For the LOCAL path without the SDK use: python -m agent.app ...\n"
+        f"  (import detail: {exc})\n"
     )
 
 
-# --- Tools de lectura -------------------------------------------------------
+# --- Read tools --------------------------------------------------------------
 @tool
 def load_profile(profile_id: str) -> dict:
-    """Carga un perfil declarativo de onboarding desde profiles/<id>.yaml.
+    """Load a declarative onboarding profile from profiles/<id>.yaml.
 
-    Devuelve permisos esperados, checklist base y aprobaciones requeridas.
+    Returns expected permissions, base checklist and required approvals.
     """
     return _load_profile(profile_id)
 
 
 @tool
 def load_project(project_id: str) -> dict:
-    """Carga un proyecto declarativo desde projects/<id>.yaml.
+    """Load a declarative project from projects/<id>.yaml.
 
-    Devuelve repositorios, arquitectura, primeras tareas y notas de riesgo.
+    Returns repositories, architecture, first tasks and risk notes.
     """
     return _load_project(project_id)
 
 
-# --- Tool de generación -----------------------------------------------------
+# --- Generation tool ----------------------------------------------------------
 @tool
 def generate_onboarding_plan(
     employee_name: str,
@@ -73,25 +73,25 @@ def generate_onboarding_plan(
     profile: dict,
     project: dict,
 ) -> str:
-    """Genera el plan de onboarding en Markdown a partir de un perfil y un proyecto.
+    """Generate the onboarding plan in Markdown from a profile and a project.
 
-    `profile` y `project` son los dicts devueltos por load_profile y load_project.
+    `profile` and `project` are the dicts returned by load_profile and load_project.
     """
     return _generate_onboarding_plan(employee_name, employee_email, profile, project)
 
 
-# --- Tool de escritura ------------------------------------------------------
+# --- Write tool ----------------------------------------------------------------
 @tool
 def mark_step_done(employee_email: str, step_id: str, note: str = "") -> dict:
-    """Registra un paso de onboarding completado (estado local del MVP).
+    """Record a completed onboarding step (local MVP state).
 
-    En producción esto se reemplaza por una escritura en DynamoDB.
+    In production this is replaced by a write to DynamoDB.
     """
     return _mark_step_done(employee_email, step_id, note)
 
 
 def build_agent() -> Agent:
-    """Construye el agente Strands con modelo Bedrock + tools de onboarding."""
+    """Build the Strands agent with a Bedrock model + onboarding tools."""
     model = BedrockModel(
         model_id=os.environ.get(
             "BEDROCK_MODEL_ID", "anthropic.claude-3-5-sonnet-20241022-v2:0"
@@ -112,20 +112,20 @@ def build_agent() -> Agent:
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Generar un plan de onboarding usando un agente Strands real."
+        description="Generate an onboarding plan using a real Strands agent."
     )
-    parser.add_argument("--employee", required=True, help="Nombre completo del empleado")
-    parser.add_argument("--email", required=True, help="Email del empleado")
-    parser.add_argument("--profile", required=True, help="Id de perfil, ej. backend-dev")
-    parser.add_argument("--project", required=True, help="Id de proyecto, ej. payments-platform")
+    parser.add_argument("--employee", required=True, help="Employee full name")
+    parser.add_argument("--email", required=True, help="Employee email")
+    parser.add_argument("--profile", required=True, help="Profile id, e.g. backend-dev")
+    parser.add_argument("--project", required=True, help="Project id, e.g. payments-platform")
     args = parser.parse_args()
 
     agent = build_agent()
     prompt = (
-        f"Genera el plan de onboarding para el empleado '{args.employee}' "
-        f"(email {args.email}) con el perfil '{args.profile}' en el proyecto "
-        f"'{args.project}'. Usa las tools load_profile y load_project para obtener "
-        f"los datos y luego generate_onboarding_plan para producir el plan en Markdown."
+        f"Generate the onboarding plan for employee '{args.employee}' "
+        f"(email {args.email}) with profile '{args.profile}' on project "
+        f"'{args.project}'. Use the load_profile and load_project tools to get "
+        f"the data and then generate_onboarding_plan to produce the plan in Markdown."
     )
     result = agent(prompt)
     print(result)

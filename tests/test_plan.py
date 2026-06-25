@@ -11,4 +11,4 @@ def test_build_plan_contains_employee_and_project():
     assert "Ada Lovelace" in plan
     assert "Payments Platform" in plan
     assert "payments-api" in plan
-    assert "Checklist día 1" in plan
+    assert "Day 1 checklist" in plan

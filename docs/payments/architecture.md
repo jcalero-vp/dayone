@@ -1,19 +1,19 @@
-# Payments Platform - Arquitectura
+# Payments Platform - Architecture
 
-La plataforma de pagos está compuesta por tres repositorios principales:
+The payments platform is composed of three main repositories:
 
-- `payments-api`: API síncrona para operaciones de pago.
-- `payments-worker`: procesamiento asíncrono, reintentos y conciliación.
-- `payments-infra`: infraestructura como código.
+- `payments-api`: synchronous API for payment operations.
+- `payments-worker`: asynchronous processing, retries and reconciliation.
+- `payments-infra`: infrastructure as code.
 
-## Objetivo del sistema
+## System goal
 
-Procesar pagos de forma segura, trazable y auditable, separando operaciones síncronas de procesamiento asíncrono.
+Process payments securely, traceably and auditably, separating synchronous operations from asynchronous processing.
 
-## Flujo simplificado
+## Simplified flow
 
-1. Un cliente invoca `payments-api`.
-2. La API valida la operación.
-3. La API publica un evento.
-4. `payments-worker` procesa el evento.
-5. Los resultados quedan disponibles para consulta y conciliación.
+1. A client invokes `payments-api`.
+2. The API validates the operation.
+3. The API publishes an event.
+4. `payments-worker` processes the event.
+5. Results become available for lookup and reconciliation.

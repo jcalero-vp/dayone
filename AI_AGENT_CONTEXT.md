@@ -1,68 +1,68 @@
-# Contexto para agentes de IA
+# Context for AI agents
 
-Este archivo está pensado para ser leído por agentes de IA, asistentes de coding o herramientas de generación de código antes de modificar este repositorio.
+This file is meant to be read by AI agents, coding assistants, or code-generation tools before modifying this repository.
 
-## Contexto del proyecto
+## Project context
 
-Estamos construyendo un MVP de asistente agéntico de onboarding para desarrolladores. El objetivo final es que un nuevo desarrollador sea productivo desde el día 1.
+We're building an agentic MVP for developer onboarding. The end goal is for a new developer to be productive from day 1.
 
-El equipo quiere aprender y usar:
+The team wants to learn and use:
 
 - AWS.
 - Amazon Bedrock.
 - Amazon Bedrock AgentCore.
 - Strands Agents.
-- Patrones de agentes con tools.
-- Arquitecturas AWS-native con baja dependencia inicial de SaaS externos.
+- Agent-with-tools patterns.
+- AWS-native architectures with low initial dependence on external SaaS.
 
-## Restricciones importantes
+## Important constraints
 
-1. Priorizar soluciones AWS-native.
-2. No asumir integraciones reales con Confluence, Jira, Slack o GitHub en el MVP inicial.
-3. Modelar permisos, proyectos y perfiles como YAML versionado.
-4. Diseñar para que luego pueda existir un backoffice donde se ingrese empleado + perfil + proyecto.
-5. Mantener el código simple para fines de workshop.
-6. Evitar automatizar permisos reales sin aprobación explícita.
-7. Todo cambio debe preservar la capacidad de ejecutar el agente localmente.
+1. Prioritize AWS-native solutions.
+2. Do not assume real integrations with Confluence, Jira, Slack or GitHub in the initial MVP.
+3. Model permissions, projects and profiles as versioned YAML.
+4. Design so that a backoffice can later exist where employee + profile + project are entered.
+5. Keep the code simple for workshop purposes.
+6. Avoid automating real permissions without explicit approval.
+7. Every change must preserve the ability to run the agent locally.
 
-## Dominio funcional
+## Functional domain
 
-El flujo esperado es:
+The expected flow is:
 
-1. Un manager o admin selecciona un empleado.
-2. Selecciona un perfil, por ejemplo `backend-dev`.
-3. Selecciona un proyecto, por ejemplo `payments-platform`.
-4. El agente carga el perfil y proyecto.
-5. El agente genera un plan de onboarding personalizado.
-6. El agente puede registrar progreso.
+1. A manager or admin selects an employee.
+2. Selects a profile, e.g. `backend-dev`.
+3. Selects a project, e.g. `payments-platform`.
+4. The agent loads the profile and project.
+5. The agent generates a personalized onboarding plan.
+6. The agent can record progress.
 
-## Archivos relevantes
+## Relevant files
 
-- `profiles/*.yaml`: define perfiles, permisos esperados y tareas base.
-- `projects/*.yaml`: define proyectos, repositorios, arquitectura y tareas específicas.
-- `agent/app.py`: entrada principal del agente.
-- `agent/tools/*.py`: herramientas invocables por el agente.
-- `docs/ARCHITECTURE.md`: arquitectura objetivo.
-- `accelerator/INTEGRATION_PLAN.md`: cómo usar el sample AWS.
+- `profiles/*.yaml`: defines profiles, expected permissions and base tasks.
+- `projects/*.yaml`: defines projects, repositories, architecture and specific tasks.
+- `agent/app.py`: agent entry point.
+- `agent/tools/*.py`: tools invokable by the agent.
+- `docs/ARCHITECTURE.md`: target architecture.
+- `accelerator/INTEGRATION_PLAN.md`: how to use the AWS sample.
 
-## Estilo de implementación
+## Implementation style
 
-- Python simple.
-- Funciones pequeñas.
-- Tools explícitas.
-- YAML legible.
-- Markdown para documentación.
-- Tests mínimos pero útiles.
+- Simple Python.
+- Small functions.
+- Explicit tools.
+- Readable YAML.
+- Markdown for documentation.
+- Minimal but useful tests.
 
-## Próximas evoluciones esperadas
+## Expected future evolutions
 
-- Conectar con AgentCore Runtime.
-- Agregar DynamoDB para tracking real.
-- Agregar S3 como knowledge source.
-- Agregar IAM Identity Center para permisos reales.
-- Agregar backoffice con Amplify, App Runner o FastAPI.
-- Agregar guardrails y observabilidad.
+- Connect to AgentCore Runtime.
+- Add DynamoDB for real tracking.
+- Add S3 as a knowledge source.
+- Add IAM Identity Center for real permissions.
+- Add a backoffice with Amplify, App Runner or FastAPI.
+- Add guardrails and observability.
 
-## Instrucción para agentes de IA
+## Instruction for AI agents
 
-Cuando modifiques este repo, no lo conviertas en una solución compleja de producción prematuramente. Primero debe funcionar como material de aprendizaje y workshop. Prefiere cambios pequeños, explicables y orientados a enseñar AgentCore y Strands Agents.
+When modifying this repo, do not turn it into a complex production solution prematurely. It must first work as learning and workshop material. Prefer small, explainable changes oriented toward teaching AgentCore and Strands Agents.

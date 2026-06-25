@@ -1,62 +1,62 @@
-# Objetivos del workshop
+# Workshop objectives
 
-## Propósito
+## Purpose
 
-Construir un MVP de asistente de onboarding técnico usando AWS, Amazon Bedrock, Amazon Bedrock AgentCore y Strands Agents. El caso de negocio es reducir el tiempo necesario para que un nuevo desarrollador sea productivo desde el día 1.
+Build an MVP of a technical onboarding assistant using AWS, Amazon Bedrock, Amazon Bedrock AgentCore and Strands Agents. The business case is reducing the time it takes for a new developer to become productive from day 1.
 
-## Objetivos de aprendizaje
+## Learning objectives
 
-Al finalizar el workshop, el equipo debería poder:
+By the end of the workshop, the team should be able to:
 
-1. Explicar qué problema resuelve Amazon Bedrock AgentCore en una arquitectura agéntica.
-2. Crear un agente básico con Strands Agents.
-3. Diseñar tools que conecten el razonamiento del agente con acciones concretas.
-4. Modelar conocimiento interno como archivos versionados, evitando depender al inicio de SaaS externos como Confluence.
-5. Entender cómo se puede pasar de simulación local a integración real con AWS.
-6. Diseñar un backoffice para parametrizar onboarding por empleado, perfil y proyecto.
-7. Identificar qué acciones deben ser automáticas y cuáles requieren aprobación humana.
-8. Preparar una demo end-to-end de onboarding técnico.
+1. Explain what problem Amazon Bedrock AgentCore solves in an agentic architecture.
+2. Build a basic agent with Strands Agents.
+3. Design tools that connect the agent's reasoning to concrete actions.
+4. Model internal knowledge as versioned files, avoiding early dependence on external SaaS like Confluence.
+5. Understand how to go from local simulation to real AWS integration.
+6. Design a backoffice to parametrize onboarding by employee, profile and project.
+7. Identify which actions should be automatic and which require human approval.
+8. Prepare an end-to-end technical onboarding demo.
 
-## Objetivos técnicos
+## Technical objectives
 
-- Ejecutar un agente Strands local.
-- Definir perfiles de onboarding en YAML.
-- Definir proyectos en YAML.
-- Generar planes de onboarding personalizados.
-- Preparar la integración futura con AgentCore Runtime.
-- Preparar una ruta de integración con el acelerador de AWS `sample-strands-agentcore-starter`.
+- Run a local Strands agent.
+- Define onboarding profiles in YAML.
+- Define projects in YAML.
+- Generate personalized onboarding plans.
+- Prepare future integration with AgentCore Runtime.
+- Prepare an integration path with the AWS accelerator `sample-strands-agentcore-starter`.
 
-## Resultado esperado
+## Expected outcome
 
-Una demo donde el usuario ingresa:
+A demo where the user enters:
 
-- Nombre del empleado.
+- Employee name.
 - Email.
-- Perfil, por ejemplo `backend-dev`.
-- Proyecto, por ejemplo `payments-platform`.
+- Profile, e.g. `backend-dev`.
+- Project, e.g. `payments-platform`.
 
-Y el agente devuelve:
+And the agent returns:
 
-- Repositorios que debe clonar.
-- Permisos esperados.
-- Checklist del día 1.
-- Explicación de arquitectura.
-- Primeras tareas sugeridas.
-- Riesgos o aprobaciones pendientes.
+- Repositories to clone.
+- Expected permissions.
+- Day 1 checklist.
+- Architecture explanation.
+- Suggested first tasks.
+- Risks or pending approvals.
 
-## Qué no se implementa todavía
+## What's not implemented yet
 
-Para mantener el MVP simple, inicialmente no se automatizan permisos reales ni integraciones con SaaS externos.
+To keep the MVP simple, real permissions and external SaaS integrations are not automated initially.
 
-Quedan fuera de la primera iteración:
+Out of scope for the first iteration:
 
-- Alta real en IAM Identity Center.
-- Alta real en GitHub, GitLab o CodeCommit.
-- Integración real con Jira, Slack, Teams o Confluence.
-- Backoffice productivo.
-- Gestión avanzada de secretos.
-- Guardrails empresariales completos.
+- Real provisioning in IAM Identity Center.
+- Real provisioning in GitHub, GitLab or CodeCommit.
+- Real integration with Jira, Slack, Teams or Confluence.
+- Production-grade backoffice.
+- Advanced secrets management.
+- Complete enterprise guardrails.
 
-## Criterio de éxito
+## Success criterion
 
-El workshop es exitoso si el equipo puede explicar, modificar y extender el flujo de onboarding sin depender de una sola persona experta, y si queda claro cómo evolucionar el MVP hacia una solución AWS-native de producción.
+The workshop is successful if the team can explain, modify and extend the onboarding flow without depending on a single expert, and if it's clear how to evolve the MVP toward an AWS-native production solution.

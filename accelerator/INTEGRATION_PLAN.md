@@ -1,105 +1,105 @@
-# Plan de integración con acelerador AWS
+# AWS accelerator integration plan
 
-## Acelerador recomendado
+## Recommended accelerator
 
-Usar como referencia `aws-samples/sample-strands-agentcore-starter`, un starter full-stack para prototipado de agentes con Amazon Bedrock AgentCore, Strands Agents SDK, FastAPI y htmx.
+Use as reference `aws-samples/sample-strands-agentcore-starter`, a full-stack starter for agent prototyping with Amazon Bedrock AgentCore, the Strands Agents SDK, FastAPI and htmx.
 
-## Estrategias posibles
+## Possible strategies
 
-### Opción A: usar este repo como dominio
+### Option A: use this repo as the domain layer
 
-Mantener este repo para el workshop y copiar sus conceptos al starter:
+Keep this repo for the workshop and copy its concepts into the starter:
 
 - `profiles/`
 - `projects/`
 - `agent/prompts.py`
 - `agent/tools/`
 
-Ventaja: aprendizaje claro, bajo acoplamiento.
+Advantage: clear learning, low coupling.
 
-### Opción B: migrar este repo dentro del starter
+### Option B: migrate this repo into the starter
 
-Clonar el starter y reemplazar/adaptar su agente con el dominio de onboarding.
+Clone the starter and replace/adapt its agent with the onboarding domain.
 
-Ventaja: más rápido para tener UI, telemetry y estructura full-stack.
+Advantage: faster to get a UI, telemetry and full-stack structure.
 
-### Opción C: mantener ambos repos (RECOMENDADA para el workshop)
+### Option C: keep both repos (RECOMMENDED for the workshop)
 
-- Starter AWS: infraestructura, UI y deployment.
-- Este repo: ejercicios, perfiles, dominio y documentación del workshop.
+- AWS starter: infrastructure, UI and deployment.
+- This repo: exercises, profiles, domain and workshop documentation.
 
-Ventaja: ideal para entrenamiento del equipo. Bajo riesgo de romper el path local (Lab 1), el dominio
-queda versionado y explicable, y la infra evoluciona por separado. Elegí A si querés un único repo de
-dominio liviano; elegí B solo si la prioridad es tener UI full-stack cuanto antes.
+Advantage: ideal for training the team. Low risk of breaking the local path (Lab 1), the domain
+stays versioned and explainable, and the infra evolves separately. Choose A if you want a single
+lightweight domain repo; choose B only if having a full-stack UI as soon as possible is the priority.
 
-## Prerequisitos
+## Prerequisites
 
-Antes de tocar el acelerador conviene tener:
+Before touching the accelerator it helps to have:
 
-- Cuenta AWS con permisos para Amazon Bedrock (y AgentCore en fases posteriores).
-- **Acceso al modelo habilitado** en la consola de Bedrock → *Model access*, para el `BEDROCK_MODEL_ID`
-  que uses (ver `.env.example`).
-- AWS CLI configurado (`aws configure` o SSO) y región definida (`AWS_REGION`).
-- Python 3.11+, `git` y el SDK de Strands instalado (Lab 2 completo: `agent/strands_agent.py` corre).
-- Docker disponible (el starter empaqueta el agente en contenedor para AgentCore Runtime).
+- An AWS account with permissions for Amazon Bedrock (and AgentCore in later phases).
+- **Model access enabled** in the Bedrock console → *Model access*, for the `BEDROCK_MODEL_ID`
+  you use (see `.env.example`).
+- AWS CLI configured (`aws configure` or SSO) and a defined region (`AWS_REGION`).
+- Python 3.11+, `git` and the Strands SDK installed (Lab 2 complete: `agent/strands_agent.py` runs).
+- Docker available (the starter packages the agent in a container for AgentCore Runtime).
 
-## Estructura real del starter (verificada)
+## Starter's real structure (verified)
 
-Rutas confirmadas contra `aws-samples/sample-strands-agentcore-starter` (clonado en `.aws-samples/`).
-Si el starter cambia, reconfirmá con:
+Paths confirmed against `aws-samples/sample-strands-agentcore-starter` (cloned into `.aws-samples/`).
+If the starter changes, reconfirm with:
 `grep -rn "Agent(" .aws-samples/sample-strands-agentcore-starter/agent --include="*.py"`.
 
-- `agent/my_agent.py` — define el agente: `app = BedrockAgentCoreApp()` y
-  `agent = Agent(model=..., system_prompt=..., tools=tools, ...)`. **Aquí se registran las tools.**
-- `agent/tools/` — tools de ejemplo del starter (`knowledge_base.py`, `web_search.py`,
+- `agent/my_agent.py` — defines the agent: `app = BedrockAgentCoreApp()` and
+  `agent = Agent(model=..., system_prompt=..., tools=tools, ...)`. **Tools are registered here.**
+- `agent/tools/` — the starter's example tools (`knowledge_base.py`, `web_search.py`,
   `url_fetcher.py`, `weather.py`).
-- `cdk/` — infraestructura como código (CDK): `deploy-all.sh`, `bin/`, `lib/`. Crea Cognito,
-  DynamoDB, Bedrock Guardrail, Knowledge Base, AgentCore Memory y AgentCore Runtime.
-- `chatapp/` — UI web (FastAPI, se corre con `uvicorn app.main:app`).
+- `cdk/` — infrastructure as code (CDK): `deploy-all.sh`, `bin/`, `lib/`. Creates Cognito,
+  DynamoDB, Bedrock Guardrail, Knowledge Base, AgentCore Memory and AgentCore Runtime.
+- `chatapp/` — web UI (FastAPI, run with `uvicorn app.main:app`).
 
-## Runbook (Opción C — comandos concretos)
+## Runbook (Option C — concrete commands)
 
-Todos los comandos asumen que estás parado en la raíz del starter:
+All commands assume you're standing in the starter's root:
 `cd .aws-samples/sample-strands-agentcore-starter`.
 
-1. Clonar el starter (idempotente; queda en `.aws-samples/`, ya ignorado por git):
+1. Clone the starter (idempotent; lands in `.aws-samples/`, already gitignored):
    ```bash
    bash accelerator/clone_aws_starter.sh
    ```
-2. Instalar dependencias de infra y desplegar los stacks (crea Runtime, Memory, KB, Cognito, DynamoDB):
+2. Install infra dependencies and deploy the stacks (creates Runtime, Memory, KB, Cognito, DynamoDB):
    ```bash
    cd cdk && npm install
-   ./deploy-all.sh --region us-east-1 --profile <tu-perfil> --ingress furl
+   ./deploy-all.sh --region us-east-1 --profile <your-profile> --ingress furl
    cd ..
    ```
-3. Llevar el dominio de onboarding al `agent/` del starter (sin acoplar repos): copiá desde ESTE repo
-   `agent/tools/*.py`, `agent/prompts.py`, `profiles/` y `projects/` dentro de `agent/` del starter.
-4. Registrar nuestras tools en `agent/my_agent.py`: importá las `@tool` de onboarding (las mismas de
+3. Bring the onboarding domain into the starter's `agent/` (without coupling repos): copy from THIS
+   repo `agent/tools/*.py`, `agent/prompts.py`, `profiles/` and `projects/` into the starter's `agent/`.
+4. Register our tools in `agent/my_agent.py`: import the onboarding `@tool`s (the same ones from
    `agent/strands_agent.py`: `load_profile`, `load_project`, `generate_onboarding_plan`,
-   `mark_step_done`), agregalas a la lista `tools` que recibe `Agent(...)`, y usá nuestro `SYSTEM_PROMPT`
-   (de `agent/prompts.py`) como `system_prompt`.
-5. Crear un usuario de prueba para la UI:
+   `mark_step_done`), add them to the `tools` list passed to `Agent(...)`, and use our `SYSTEM_PROMPT`
+   (from `agent/prompts.py`) as `system_prompt`.
+5. Create a test user for the UI:
    ```bash
    cd chatapp/scripts
-   ./create-user.sh tu-email@example.com 'TuPassword123@' --admin
+   ./create-user.sh your-email@example.com 'YourPassword123@' --admin
    cd ../..
    ```
-6. Probar local la UI (requiere los stacks ya desplegados; `sync-env` baja la config de Secrets Manager):
+6. Test the UI locally (requires the stacks already deployed; `sync-env` pulls config from Secrets Manager):
    ```bash
    cd chatapp
    python3 -m venv .venv && source .venv/bin/activate
    pip install -r requirements.txt
-   ./sync-env.sh --region us-east-1 --dev-mode     # --dev-mode bypassa Cognito
+   ./sync-env.sh --region us-east-1 --dev-mode     # --dev-mode bypasses Cognito
    uvicorn app.main:app --reload --port 8080       # http://localhost:8080
    ```
-7. Observabilidad: el agente ya emite trazas/logs (ver `agent/OBSERVABILITY.md` del starter) →
-   revisá CloudWatch / X-Ray y los stacks de analytics en DynamoDB.
+7. Observability: the agent already emits traces/logs (see the starter's `agent/OBSERVABILITY.md`) →
+   check CloudWatch / X-Ray and the analytics stacks in DynamoDB.
 
-## Criterio para avanzar
+## Criterion to move forward
 
-No migrar al starter hasta que el agente local de este repo pueda:
+Do not migrate to the starter until the local agent in this repo can:
 
-- Cargar perfil.
-- Cargar proyecto.
-- Generar plan.
-- Registrar al menos un paso completado.
+- Load a profile.
+- Load a project.
+- Generate a plan.
+- Record at least one completed step.

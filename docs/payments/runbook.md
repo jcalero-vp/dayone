@@ -1,12 +1,12 @@
-# Payments Platform - Runbook inicial
+# Payments Platform - Initial Runbook
 
-## Primeras verificaciones
+## First checks
 
-- Revisar métricas de errores 5xx.
-- Revisar latencia p95 de `payments-api`.
-- Revisar cola de eventos pendientes.
-- Revisar logs del worker.
+- Review 5xx error metrics.
+- Review `payments-api` p95 latency.
+- Review the pending events queue.
+- Review worker logs.
 
-## Restricciones para nuevos desarrolladores
+## Restrictions for new developers
 
-Durante onboarding, el desarrollador debe tener acceso de lectura a producción y escritura solo en staging.
+During onboarding, the developer should have read access to production and write access only in staging.

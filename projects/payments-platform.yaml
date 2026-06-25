@@ -1,21 +1,21 @@
 id: payments-platform
 name: Payments Platform
-business_goal: Plataforma para procesar pagos, conciliaciones y eventos financieros internos.
+business_goal: Platform for processing payments, reconciliations and internal financial events.
 architecture_summary: >
-  Arquitectura orientada a microservicios con APIs backend, procesamiento asíncrono y pipelines de despliegue a staging y producción.
+  Microservices-oriented architecture with backend APIs, asynchronous processing and deployment pipelines to staging and production.
 repositories:
   - name: payments-api
-    description: API principal para autorización, captura y consulta de pagos.
+    description: Main API for payment authorization, capture and lookup.
     clone_url: https://git.example.internal/payments/payments-api.git
     bootstrap: make bootstrap
     test: make test
   - name: payments-worker
-    description: Worker asíncrono para eventos de pagos, reintentos y conciliación.
+    description: Asynchronous worker for payment events, retries and reconciliation.
     clone_url: https://git.example.internal/payments/payments-worker.git
     bootstrap: make bootstrap
     test: make test
   - name: payments-infra
-    description: Infraestructura como código para cuentas, pipelines y recursos cloud.
+    description: Infrastructure as code for accounts, pipelines and cloud resources.
     clone_url: https://git.example.internal/payments/payments-infra.git
     bootstrap: make synth
     test: make validate
@@ -24,9 +24,9 @@ key_docs:
   - docs/payments/runbook.md
   - docs/payments/local-development.md
 first_tasks:
-  - Actualizar README con pasos faltantes detectados durante setup.
-  - Correr test suite y documentar errores de entorno.
-  - Revisar una PR reciente del repo payments-api.
+  - Update the README with missing steps found during setup.
+  - Run the test suite and document environment errors.
+  - Review a recent PR on the payments-api repo.
 risk_notes:
-  - No otorgar permisos de escritura en producción durante onboarding inicial.
-  - Las credenciales productivas requieren aprobación del tech lead.
+  - Do not grant production write permissions during initial onboarding.
+  - Production credentials require tech lead approval.

@@ -1,26 +1,26 @@
-# Guía de labs del workshop
+# Workshop labs guide
 
-Esta guía hila los tres labs del workshop, del path local simulado al agente real y al acelerador AWS.
-El objetivo no es tener todo resuelto, sino que quede **claro qué se quiere lograr en cada paso**.
+This guide ties together the three workshop labs, from the simulated local path to the real agent and the AWS accelerator.
+The goal is not to have everything solved, but to make **clear what we want to achieve at each step**.
 
-## Mapa: ¿qué está simulado y qué vas a construir?
+## Map: what's simulated and what you'll build?
 
-| Capa | Lab 1 (local) | Lab 2 (Strands) | Lab 3 (acelerador) |
+| Layer | Lab 1 (local) | Lab 2 (Strands) | Lab 3 (accelerator) |
 |------|---------------|-----------------|--------------------|
-| Orquestación | `build_plan()` en Python | **Agente Strands** decide qué tool usar | Agente sobre AgentCore Runtime |
-| Tools | Funciones Python | Mismas funciones como `@tool` | Mismas tools + AWS reales (futuro) |
-| Datos | YAML en `profiles/` y `projects/` | YAML (igual) | YAML + S3 / DynamoDB (futuro) |
-| Permisos | **Simulados** (texto en el plan) | Simulados | IAM Identity Center (futuro) |
-| Estado | JSON en `.local-progress/` | JSON local | DynamoDB (futuro) |
+| Orchestration | `build_plan()` in Python | **Strands agent** decides which tool to use | Agent on AgentCore Runtime |
+| Tools | Python functions | Same functions as `@tool` | Same tools + real AWS (future) |
+| Data | YAML in `profiles/` and `projects/` | YAML (same) | YAML + S3 / DynamoDB (future) |
+| Permissions | **Simulated** (text in the plan) | Simulated | IAM Identity Center (future) |
+| State | JSON in `.local-progress/` | Local JSON | DynamoDB (future) |
 
-> Regla de oro: **el repo siempre debe correr en Lab 1 sin instalar el SDK de Strands.**
-> Lab 2 y Lab 3 son opcionales y aditivos; no rompen el path local.
+> Golden rule: **the repo must always run in Lab 1 without installing the Strands SDK.**
+> Lab 2 and Lab 3 are optional and additive; they don't break the local path.
 
 ---
 
-## Lab 1 — Agente local (entender el dominio)
+## Lab 1 — Local agent (understand the domain)
 
-**Meta:** ejecutar el generador de planes y entender el modelo declarativo.
+**Goal:** run the plan generator and understand the declarative model.
 
 ```bash
 python -m venv .venv && source .venv/bin/activate
@@ -30,57 +30,57 @@ python -m agent.app --employee "Ada Lovelace" --email ada@example.com \
 pytest
 ```
 
-**Ejercicios:**
-1. Agregar un perfil nuevo en `profiles/` (ej. `data-engineer.yaml`).
-2. Agregar un proyecto nuevo en `projects/`.
-3. Generar un plan con esa combinación y revisar el Markdown resultante.
+**Exercises:**
+1. Add a new profile in `profiles/` (e.g. `data-engineer.yaml`).
+2. Add a new project in `projects/`.
+3. Generate a plan with that combination and review the resulting Markdown.
 
-**Criterio para avanzar a Lab 2:** el plan se genera con repos, permisos y checklist correctos.
+**Criterion to move to Lab 2:** the plan is generated with correct repos, permissions and checklist.
 
 ---
 
-## Lab 2 — Tools Strands (el agente razona)
+## Lab 2 — Strands tools (the agent reasons)
 
-**Meta:** que un **agente** decida cuándo invocar cada tool, en lugar de llamarlas nosotros.
+**Goal:** have an **agent** decide when to invoke each tool, instead of calling them ourselves.
 
 ```bash
-# 1) Habilitar el SDK
-#    Descomenta en requirements.txt: strands-agents, bedrock-agentcore
+# 1) Enable the SDK
+#    Uncomment in requirements.txt: strands-agents, bedrock-agentcore
 pip install strands-agents bedrock-agentcore
 
-# 2) Configurar AWS + Bedrock
-cp .env.example .env          # setea AWS_REGION y BEDROCK_MODEL_ID
-#    Requiere credenciales AWS y acceso habilitado al modelo en Bedrock.
+# 2) Configure AWS + Bedrock
+cp .env.example .env          # set AWS_REGION and BEDROCK_MODEL_ID
+#    Requires AWS credentials and enabled access to the model in Bedrock.
 
-# 3) Ejecutar el agente real
+# 3) Run the real agent
 python -m agent.strands_agent --employee "Ada Lovelace" --email ada@example.com \
   --profile backend-dev --project payments-platform
 ```
 
-Ver `agent/strands_agent.py`: envuelve las **mismas** funciones de `agent/tools/` como `@tool`
-(lectura: `load_profile`, `load_project`; generación: `generate_onboarding_plan`;
-escritura: `mark_step_done`) y las pasa a un `Agent` Strands con `SYSTEM_PROMPT`.
+See `agent/strands_agent.py`: it wraps the **same** functions from `agent/tools/` as `@tool`
+(read: `load_profile`, `load_project`; generation: `generate_onboarding_plan`;
+write: `mark_step_done`) and passes them to a Strands `Agent` with `SYSTEM_PROMPT`.
 
-**Ejercicios:**
-1. Agregar la tool de escritura `mark_step_done` a una conversación y registrar un paso.
-2. Pedirle al agente que explique **qué haría** antes de hacerlo (human-in-the-loop).
-3. Revisar el contrato de tools peligrosas en `docs/AGENTCORE_STRANDS_NOTES.md`.
+**Exercises:**
+1. Add the `mark_step_done` write tool to a conversation and record a step.
+2. Ask the agent to explain **what it would do** before doing it (human-in-the-loop).
+3. Review the dangerous-tools contract in `docs/AGENTCORE_STRANDS_NOTES.md`.
 
-**Criterio para avanzar a Lab 3:** el agente carga perfil + proyecto, genera el plan y registra un paso.
+**Criterion to move to Lab 3:** the agent loads profile + project, generates the plan and records a step.
 
 ---
 
-## Lab 3 — Acelerador AWS (camino a producción)
+## Lab 3 — AWS accelerator (path to production)
 
-**Meta:** usar `aws-samples/sample-strands-agentcore-starter` para infra/UI/deploy, manteniendo
-este repo como capa de dominio (**Opción C** recomendada — ver `accelerator/INTEGRATION_PLAN.md`).
+**Goal:** use `aws-samples/sample-strands-agentcore-starter` for infra/UI/deploy, keeping
+this repo as the domain layer (**Option C** recommended — see `accelerator/INTEGRATION_PLAN.md`).
 
 ```bash
-bash accelerator/clone_aws_starter.sh   # clona el starter en .aws-samples/ (ya en .gitignore)
+bash accelerator/clone_aws_starter.sh   # clones the starter into .aws-samples/ (already gitignored)
 ```
 
-Luego seguí el runbook concreto en `accelerator/INTEGRATION_PLAN.md` (prerequisitos, comandos y
-dónde vive el agente del starter).
+Then follow the concrete runbook in `accelerator/INTEGRATION_PLAN.md` (prerequisites, commands and
+where the starter's agent lives).
 
-**Criterio de éxito del workshop:** el equipo puede explicar, modificar y extender el flujo de
-onboarding, y sabe cómo evolucionarlo hacia una solución AWS-native de producción.
+**Workshop success criterion:** the team can explain, modify and extend the onboarding flow, and
+knows how to evolve it toward an AWS-native production solution.

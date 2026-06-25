@@ -1,11 +1,11 @@
-# Arquitectura objetivo
+# Target architecture
 
-## MVP local
+## Local MVP
 
-El MVP local usa archivos YAML y tools Python para enseñar el patrón:
+The local MVP uses YAML files and Python tools to teach the pattern:
 
 ```text
-CLI / futuro backoffice
+CLI / future backoffice
   -> agent.app
   -> load_profile
   -> load_project
@@ -13,15 +13,15 @@ CLI / futuro backoffice
   -> track_progress
 ```
 
-Este flujo permite validar el dominio sin crear permisos reales.
+This flow lets us validate the domain without creating real permissions.
 
-## Arquitectura AWS objetivo
+## Target AWS architecture
 
 ```text
-Backoffice web
+Web backoffice
   -> API backend
-  -> AgentCore Runtime con agente Strands
-  -> Tools AWS
+  -> AgentCore Runtime with a Strands agent
+  -> AWS tools
        -> IAM Identity Center
        -> CodeCommit / Git provider
        -> DynamoDB
@@ -30,61 +30,61 @@ Backoffice web
        -> CloudWatch / X-Ray
 ```
 
-## Componentes
+## Components
 
 ### Backoffice
 
-Interfaz para managers o admins. Campos mínimos:
+Interface for managers or admins. Minimum fields:
 
-- Nombre del empleado.
+- Employee name.
 - Email.
-- Perfil.
-- Proyecto o conjunto de proyectos.
-- Fecha de inicio.
-- Buddy opcional.
+- Profile.
+- Project or set of projects.
+- Start date.
+- Optional buddy.
 
 ### AgentCore Runtime
 
-Hospeda el agente o tools. AgentCore Runtime se encarga de escalado, manejo de sesiones, aislamiento de seguridad e infraestructura administrada, lo que permite concentrarse en la experiencia del agente.
+Hosts the agent and/or tools. AgentCore Runtime handles scaling, session management, security isolation and managed infrastructure, letting the team focus on the agent experience.
 
 ### Strands Agent
 
-Contiene el razonamiento, system prompt y tools.
+Holds the reasoning, system prompt and tools.
 
 ### DynamoDB
 
-Persistencia de estado:
+State persistence:
 
-- Onboarding creado.
-- Pasos completados.
-- Errores.
-- Aprobaciones pendientes.
+- Onboarding created.
+- Completed steps.
+- Errors.
+- Pending approvals.
 
 ### S3
 
-Documentación interna versionada y preparada para indexación:
+Versioned internal documentation, ready for indexing:
 
-- Guías de proyecto.
+- Project guides.
 - Runbooks.
-- Diagramas.
+- Diagrams.
 - FAQs.
 
 ### IAM Identity Center
 
-Asignación real de grupos y permission sets en fases posteriores.
+Real assignment of groups and permission sets in later phases.
 
-## Decisiones del MVP
+## MVP decisions
 
-1. Usar YAML como contrato inicial.
-2. Mantener permisos simulados hasta validar el flujo.
-3. Diseñar cada acción como tool independiente.
-4. Permitir que el agente explique qué haría antes de hacerlo.
-5. Requerir aprobación humana para accesos sensibles.
+1. Use YAML as the initial contract.
+2. Keep permissions simulated until the flow is validated.
+3. Design every action as an independent tool.
+4. Let the agent explain what it would do before doing it.
+5. Require human approval for sensitive access.
 
-## Preguntas abiertas
+## Open questions
 
-- ¿Qué proveedor Git se usará en producción?
-- ¿Los proyectos serán uno-a-uno o un empleado puede entrar a varios proyectos?
-- ¿Qué sistema será fuente de verdad de empleados?
-- ¿Qué acciones requieren aprobación del manager, tech lead o security?
-- ¿Cómo se medirá productividad día 1?
+- Which Git provider will be used in production?
+- Will projects be one-to-one, or can an employee join multiple projects?
+- Which system will be the source of truth for employees?
+- Which actions require approval from the manager, tech lead or security?
+- How will day-1 productivity be measured?

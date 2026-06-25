@@ -1,26 +1,26 @@
-# Backoffice - especificación inicial
+# Backoffice - initial specification
 
-## Objetivo
+## Goal
 
-Crear una interfaz interna para iniciar un onboarding técnico sin ejecutar pasos manuales dispersos.
+Create an internal interface to start a technical onboarding without running scattered manual steps.
 
-## Usuario principal
+## Primary user
 
 - Manager.
 - Tech lead.
 - Engineering enablement.
 - People/IT admin.
 
-## Formulario mínimo
+## Minimal form
 
-Campos requeridos:
+Required fields:
 
 - `employee_name`
 - `employee_email`
 - `profile_id`
 - `project_ids`
 
-Campos opcionales:
+Optional fields:
 
 - `start_date`
 - `buddy_email`
@@ -28,31 +28,31 @@ Campos opcionales:
 - `location`
 - `notes`
 
-## Acciones del botón "Crear onboarding"
+## "Create onboarding" button actions
 
-1. Validar perfil.
-2. Validar proyecto.
-3. Generar plan.
-4. Crear registro de estado.
-5. Calcular permisos esperados.
-6. Crear tareas día 1.
-7. Marcar aprobaciones requeridas.
-8. Enviar link al nuevo empleado.
+1. Validate profile.
+2. Validate project.
+3. Generate plan.
+4. Create state record.
+5. Calculate expected permissions.
+6. Create day 1 tasks.
+7. Flag required approvals.
+8. Send link to the new employee.
 
-## Vista de detalle
+## Detail view
 
-Debe mostrar:
+Must show:
 
-- Plan generado.
-- Repositorios.
-- Permisos solicitados.
-- Permisos aprobados.
+- Generated plan.
+- Repositories.
+- Requested permissions.
+- Approved permissions.
 - Checklist.
-- Progreso.
-- Riesgos.
-- Logs de acciones.
+- Progress.
+- Risks.
+- Action logs.
 
-## Estados del onboarding
+## Onboarding states
 
 - `draft`
 - `pending_approval`
@@ -61,9 +61,9 @@ Debe mostrar:
 - `blocked`
 - `completed`
 
-## Reglas de seguridad
+## Security rules
 
-- El backoffice no debe otorgar acceso productivo sensible sin aprobación.
-- Toda acción debe quedar auditada.
-- El empleado solo debe ver información autorizada.
-- Las plantillas de permisos deben versionarse y revisarse por security/platform.
+- The backoffice must not grant sensitive production access without approval.
+- Every action must be audited.
+- The employee should only see authorized information.
+- Permission templates must be versioned and reviewed by security/platform.

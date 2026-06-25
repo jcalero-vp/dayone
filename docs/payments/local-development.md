@@ -1,6 +1,6 @@
-# Payments Platform - Desarrollo local
+# Payments Platform - Local Development
 
-## Setup mínimo
+## Minimal setup
 
 ```bash
 git clone https://git.example.internal/payments/payments-api.git
@@ -9,4 +9,4 @@ make bootstrap
 make test
 ```
 
-Repetir el flujo para `payments-worker` y `payments-infra`.
+Repeat the flow for `payments-worker` and `payments-infra`.

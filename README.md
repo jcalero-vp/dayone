@@ -2,27 +2,27 @@
 
 [![ci](https://github.com/rivadaviam/dayone/actions/workflows/ci.yml/badge.svg)](https://github.com/rivadaviam/dayone/actions/workflows/ci.yml)
 
-MVP de workshop para construir un asistente agéntico de onboarding de desarrolladores usando **Amazon Bedrock AgentCore**, **Strands Agents** y servicios AWS nativos.
+Workshop MVP for building an agentic developer-onboarding assistant using **Amazon Bedrock AgentCore**, **Strands Agents** and native AWS services.
 
-El objetivo del repo es servir como punto de partida para que el equipo aprenda a crear, ejecutar y desplegar un agente que, a partir de un empleado + perfil + proyecto, genere un plan de onboarding, explique repositorios, liste permisos esperados y registre progreso.
+The goal of this repo is to serve as a starting point for the team to learn how to build, run and deploy an agent that, given an employee + profile + project, generates an onboarding plan, explains repositories, lists expected permissions and tracks progress.
 
-> **Estado: simulado vs. lo que vas a construir.** Este repo arranca como **Lab 1** — un generador
-> de planes en Python plano que corre **sin** el SDK de Strands. El agente real (Strands + Bedrock)
-> es **Lab 2** y el acelerador AWS es **Lab 3**. Los permisos, repos y estado son **simulados** hasta
-> fases posteriores. Guía completa de labs: [`docs/WORKSHOP_LABS.md`](docs/WORKSHOP_LABS.md).
+> **Status: simulated vs. what you'll build.** This repo starts as **Lab 1** — a plain Python plan
+> generator that runs **without** the Strands SDK. The real agent (Strands + Bedrock) is **Lab 2**
+> and the AWS accelerator is **Lab 3**. Permissions, repos and state are **simulated** until later
+> phases. Full labs guide: [`docs/WORKSHOP_LABS.md`](docs/WORKSHOP_LABS.md).
 
-## Objetivos del MVP
+## MVP objectives
 
-- Aprender AgentCore Runtime y Strands Agents con un caso realista.
-- Reducir dependencias externas tipo Confluence/Jira/Slack durante el MVP.
-- Usar documentación local versionada en el repo y/o S3.
-- Modelar permisos y onboarding como plantillas declarativas.
-- Preparar el camino para una UI de backoffice donde un manager seleccione empleado, perfil y proyecto.
+- Learn AgentCore Runtime and Strands Agents with a realistic case.
+- Reduce external dependencies like Confluence/Jira/Slack during the MVP.
+- Use local versioned documentation in the repo and/or S3.
+- Model permissions and onboarding as declarative templates.
+- Prepare the path for a backoffice UI where a manager selects employee, profile and project.
 
-## Arquitectura MVP
+## MVP architecture
 
 ```text
-Backoffice futuro / CLI
+Future backoffice / CLI
         |
         v
 Strands Agent
@@ -33,33 +33,33 @@ Strands Agent
         +--> tools/track_progress.py
         |
         v
-AgentCore Runtime futuro
+Future AgentCore Runtime
         |
-        +--> DynamoDB futuro: estado del onboarding
-        +--> S3 futuro: docs internas versionadas
-        +--> IAM Identity Center futuro: permisos reales
-        +--> CodeCommit/GitHub futuro: repos reales
+        +--> Future DynamoDB: onboarding state
+        +--> Future S3: versioned internal docs
+        +--> Future IAM Identity Center: real permissions
+        +--> Future CodeCommit/GitHub: real repos
 ```
 
-## Estructura
+## Structure
 
 ```text
 .
-├── agent/                         # Código del agente Strands
-│   ├── app.py                      # Agente mínimo
-│   ├── config.py                   # Configuración
+├── agent/                         # Strands agent code
+│   ├── app.py                      # Minimal agent
+│   ├── config.py                   # Configuration
 │   ├── prompts.py                  # System prompts
-│   └── tools/                      # Tools locales simuladas
-├── profiles/                       # Perfiles declarativos de onboarding
-├── projects/                       # Proyectos declarativos
-├── docs/                           # Objetivos, contexto y decisiones
-├── accelerator/                    # Integración con sample AWS
-├── scripts/                        # Scripts de setup/demo
-├── infra/backoffice/               # Placeholder para backoffice futuro
-└── tests/                          # Tests mínimos
+│   └── tools/                      # Simulated local tools
+├── profiles/                       # Declarative onboarding profiles
+├── projects/                       # Declarative projects
+├── docs/                           # Objectives, context and decisions
+├── accelerator/                    # Integration with the AWS sample
+├── scripts/                        # Setup/demo scripts
+├── infra/backoffice/               # Placeholder for the future backoffice
+└── tests/                          # Minimal tests
 ```
 
-## Quickstart local
+## Local quickstart
 
 ```bash
 python -m venv .venv
@@ -68,70 +68,70 @@ pip install -r requirements.txt
 python -m agent.app --employee "Ada Lovelace" --email ada@example.com --profile backend-dev --project payments-platform
 ```
 
-Salida esperada: un plan de onboarding en Markdown con repos, permisos, checklist y primeros pasos.
+Expected output: an onboarding plan in Markdown with repos, permissions, checklist and first steps.
 
-## Path Strands (agente real, opcional)
+## Strands path (real agent, optional)
 
-El path local de arriba (`agent/app.py`) corre **sin** el SDK. Para que un **agente Strands** orqueste
-las mismas tools (Lab 2), usá [`agent/strands_agent.py`](agent/strands_agent.py):
+The local path above (`agent/app.py`) runs **without** the SDK. For a **Strands agent** to orchestrate
+the same tools (Lab 2), use [`agent/strands_agent.py`](agent/strands_agent.py):
 
 ```bash
-# 1) Habilitar el SDK (descomenta strands-agents y bedrock-agentcore en requirements.txt)
+# 1) Enable the SDK (uncomment strands-agents and bedrock-agentcore in requirements.txt)
 pip install strands-agents bedrock-agentcore
 
-# 2) Configurar AWS + Bedrock
-cp .env.example .env          # setea AWS_REGION y BEDROCK_MODEL_ID (requiere acceso al modelo)
+# 2) Configure AWS + Bedrock
+cp .env.example .env          # set AWS_REGION and BEDROCK_MODEL_ID (requires model access)
 
-# 3) Ejecutar el agente real
+# 3) Run the real agent
 python -m agent.strands_agent --employee "Ada Lovelace" --email ada@example.com \
   --profile backend-dev --project payments-platform
 ```
 
-Las tools son las **mismas** funciones de `agent/tools/`, ahora envueltas como `@tool` de Strands.
-Detalle del contrato de tools (lectura / generación / escritura / peligrosas) en
+The tools are the **same** functions from `agent/tools/`, now wrapped as Strands `@tool`.
+Tool contract details (read / generation / write / dangerous) in
 [`docs/AGENTCORE_STRANDS_NOTES.md`](docs/AGENTCORE_STRANDS_NOTES.md).
 
-## Usar el acelerador AWS
+## Using the AWS accelerator
 
-Este workshop está diseñado para poder convivir con el acelerador oficial `aws-samples/sample-strands-agentcore-starter`.
+This workshop is designed to coexist with the official accelerator `aws-samples/sample-strands-agentcore-starter`.
 
 ```bash
 bash accelerator/clone_aws_starter.sh
 ```
 
-Luego revisen `accelerator/INTEGRATION_PLAN.md` para decidir si:
+Then check `accelerator/INTEGRATION_PLAN.md` to decide whether to:
 
-1. Usan este repo como capa de dominio y copian sus tools/prompts al starter.
-2. Usan el starter como base full-stack y migran este MVP dentro de su carpeta `agent/`.
-3. Mantienen ambos: starter para infraestructura y este repo para ejercicios del workshop.
+1. Use this repo as the domain layer and copy its tools/prompts into the starter.
+2. Use the starter as the full-stack base and migrate this MVP into its `agent/` folder.
+3. Keep both: starter for infrastructure and this repo for workshop exercises.
 
-## Roadmap sugerido
+## Suggested roadmap
 
-### Fase 1: Workshop local
-- Ejecutar agente local.
-- Entender Strands tools y prompts.
-- Agregar un nuevo perfil y proyecto.
-- Generar un plan de onboarding.
+### Phase 1: Local workshop
+- Run the local agent.
+- Understand Strands tools and prompts.
+- Add a new profile and project.
+- Generate an onboarding plan.
 
-### Fase 2: AgentCore
-- Empaquetar agente para AgentCore Runtime.
-- Configurar observabilidad.
-- Invocar por sesión.
-- Comparar local vs runtime administrado.
+### Phase 2: AgentCore
+- Package the agent for AgentCore Runtime.
+- Configure observability.
+- Invoke per session.
+- Compare local vs. managed runtime.
 
-### Fase 3: Backoffice
-- Crear UI mínima: empleado, email, perfil, proyecto.
-- Persistir estado en DynamoDB.
-- Generar checklist por empleado.
+### Phase 3: Backoffice
+- Create a minimal UI: employee, email, profile, project.
+- Persist state in DynamoDB.
+- Generate a checklist per employee.
 
-### Fase 4: Permisos reales
-- Conectar IAM Identity Center.
-- Mapear perfiles a permission sets.
-- Aprobar acciones sensibles human-in-the-loop.
+### Phase 4: Real permissions
+- Connect IAM Identity Center.
+- Map profiles to permission sets.
+- Approve sensitive actions human-in-the-loop.
 
-## Principio de diseño
+## Design principle
 
-El onboarding debe ser declarativo:
+Onboarding must be declarative:
 
 ```yaml
 employee: ada@example.com
@@ -139,4 +139,4 @@ profile: backend-dev
 project: payments-platform
 ```
 
-El sistema deriva automáticamente repos, permisos, tareas, documentación y próximos pasos.
+The system automatically derives repos, permissions, tasks, documentation and next steps.

@@ -1,53 +1,53 @@
 # AgentCore + Strands notes
 
-## Qué investigar durante el workshop
+## What to research during the workshop
 
-- Cómo empaquetar el agente para AgentCore Runtime.
-- Cómo exponer endpoints compatibles con el runtime.
-- Cómo activar observabilidad en CloudWatch.
-- Cómo manejar sesiones de conversación.
-- Cómo separar tools de lectura, tools de escritura y tools de aprobación.
+- How to package the agent for AgentCore Runtime.
+- How to expose runtime-compatible endpoints.
+- How to enable observability in CloudWatch.
+- How to handle conversation sessions.
+- How to separate read tools, write tools and approval tools.
 
-## Ruta recomendada
+## Recommended path
 
-1. Ejecutar local sin Strands para entender el dominio.
-2. Instalar Strands Agents SDK.
-3. Convertir `load_profile`, `load_project`, `generate_onboarding_plan` y `mark_step_done` en tools Strands.
-4. Ejecutar el agente local con Strands.
-5. Empaquetar con AgentCore Starter Toolkit.
-6. Desplegar en AgentCore Runtime.
-7. Medir trazas, logs y errores.
+1. Run locally without Strands to understand the domain.
+2. Install the Strands Agents SDK.
+3. Convert `load_profile`, `load_project`, `generate_onboarding_plan` and `mark_step_done` into Strands tools.
+4. Run the agent locally with Strands.
+5. Package with the AgentCore Starter Toolkit.
+6. Deploy to AgentCore Runtime.
+7. Measure traces, logs and errors.
 
-## Contrato conceptual de tools
+## Conceptual tool contract
 
-### Tools de lectura
+### Read tools
 
 - `load_profile(profile_id)`
 - `load_project(project_id)`
-- `search_internal_docs(query)` futuro
+- `search_internal_docs(query)` (future)
 
-### Tools de generación
+### Generation tools
 
 - `generate_onboarding_plan(employee, email, profile, project)`
 
-### Tools de escritura
+### Write tools
 
 - `mark_step_done(employee_email, step_id, note)`
-- `request_permission_approval(employee_email, permission_set)` futuro
+- `request_permission_approval(employee_email, permission_set)` (future)
 
-### Tools peligrosas
+### Dangerous tools
 
-Estas no deben ejecutarse automáticamente en el MVP:
+These must not run automatically in the MVP:
 
-- Crear usuario real.
-- Otorgar permisos productivos.
-- Leer secretos productivos.
-- Desplegar a producción.
+- Create a real user.
+- Grant production permissions.
+- Read production secrets.
+- Deploy to production.
 
-## Ejemplo concreto: envolver una función como tool
+## Concrete example: wrapping a function as a tool
 
-Cada función de `agent/tools/` se convierte en tool de Strands con el decorador `@tool`. El docstring
-es lo que el modelo lee para decidir cuándo usarla, así que escribilo claro:
+Each function in `agent/tools/` becomes a Strands tool with the `@tool` decorator. The docstring is
+what the model reads to decide when to use it, so write it clearly:
 
 ```python
 from strands import Agent, tool
@@ -58,28 +58,28 @@ from agent.tools.load_profile import load_profile as _load_profile
 
 @tool
 def load_profile(profile_id: str) -> dict:
-    """Carga un perfil declarativo de onboarding desde profiles/<id>.yaml."""
+    """Load a declarative onboarding profile from profiles/<id>.yaml."""
     return _load_profile(profile_id)
 
-# ... idem load_project, generate_onboarding_plan, mark_step_done ...
+# ... same for load_project, generate_onboarding_plan, mark_step_done ...
 
 agent = Agent(
     model=BedrockModel(model_id="anthropic.claude-3-5-sonnet-20241022-v2:0", region_name="us-east-1"),
     system_prompt=SYSTEM_PROMPT,
     tools=[load_profile, load_project, generate_onboarding_plan, mark_step_done],
 )
-print(agent("Genera el plan de onboarding para Ada con perfil backend-dev en payments-platform"))
+print(agent("Generate the onboarding plan for Ada with backend-dev profile on payments-platform"))
 ```
 
-La implementación completa y ejecutable está en `agent/strands_agent.py`. Para correrla:
+The full, runnable implementation lives in `agent/strands_agent.py`. To run it:
 
 ```bash
-pip install strands-agents bedrock-agentcore     # o descomenta en requirements.txt
+pip install strands-agents bedrock-agentcore     # or uncomment in requirements.txt
 cp .env.example .env                             # AWS_REGION + BEDROCK_MODEL_ID
 python -m agent.strands_agent --employee "Ada Lovelace" --email ada@example.com \
   --profile backend-dev --project payments-platform
 ```
 
-## Nota
+## Note
 
-El código actual corre sin instalar Strands para que el workshop empiece rápido. La integración real con Strands debe hacerse como ejercicio guiado.
+The current code runs without installing Strands so the workshop can start quickly. The real integration with Strands should be done as a guided exercise.

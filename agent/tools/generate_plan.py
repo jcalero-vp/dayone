@@ -35,60 +35,60 @@ def generate_onboarding_plan(
 
     plan = f"""# Onboarding plan - {employee_name}
 
-**Empleado:** {employee_name}  
-**Email:** {employee_email}  
-**Perfil:** {profile.get('name', profile.get('id'))}  
-**Proyecto:** {project.get('name', project.get('id'))}
+**Employee:** {employee_name}
+**Email:** {employee_email}
+**Profile:** {profile.get('name', profile.get('id'))}
+**Project:** {project.get('name', project.get('id'))}
 
-## Objetivo de negocio del proyecto
+## Project business goal
 
-{project.get('business_goal', 'Pendiente de documentar.')}
+{project.get('business_goal', 'Pending documentation.')}
 
-## Resumen de arquitectura
+## Architecture summary
 
-{project.get('architecture_summary', 'Pendiente de documentar.')}
+{project.get('architecture_summary', 'Pending documentation.')}
 
-## Permisos esperados
+## Expected permissions
 
 ### AWS
 {_bullet(profile_permissions.get('aws', []))}
 
-### Repositorios
-- Acceso esperado: {profile_permissions.get('repositories', {}).get('access', 'pending')}
+### Repositories
+- Expected access: {profile_permissions.get('repositories', {}).get('access', 'pending')}
 
 ### CI/CD
 {_bullet(profile_permissions.get('ci_cd', []))}
 
-## Repositorios a clonar
+## Repositories to clone
 
 {chr(10).join(repo_section)}
 
-## Checklist día 1
+## Day 1 checklist
 
 {_bullet(day_1)}
 
-## Checklist semana 1
+## Week 1 checklist
 
 {_bullet(week_1)}
 
-## Primeras tareas sugeridas
+## Suggested first tasks
 
 {_bullet(project.get('first_tasks', []))}
 
-## Documentación sugerida
+## Suggested documentation
 
 {_bullet(project.get('key_docs', []))}
 
-## Aprobaciones y riesgos
+## Approvals and risks
 
-### Aprobaciones requeridas por perfil
+### Approvals required by profile
 {_bullet(profile.get('approvals_required', []))}
 
-### Notas de riesgo del proyecto
+### Project risk notes
 {_bullet(project.get('risk_notes', []))}
 
-## Estado MVP
+## MVP status
 
-Este plan fue generado con datos declarativos locales. En la versión productiva, estos pasos pueden conectarse a IAM Identity Center, repos reales, pipelines y DynamoDB.
+This plan was generated with local declarative data. In the production version, these steps can be connected to IAM Identity Center, real repos, pipelines and DynamoDB.
 """
     return plan.strip() + "\n"

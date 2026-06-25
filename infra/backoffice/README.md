@@ -1,18 +1,18 @@
 # Backoffice placeholder
 
-Esta carpeta queda reservada para la implementación futura del backoffice.
+This folder is reserved for the future backoffice implementation.
 
-Opciones recomendadas para el MVP:
+Recommended options for the MVP:
 
-1. FastAPI + htmx, alineado con el starter AWS.
+1. FastAPI + htmx, aligned with the AWS starter.
 2. Amplify Hosting + API Gateway + Lambda.
-3. App Runner para una app containerizada simple.
+3. App Runner for a simple containerized app.
 
-Formulario mínimo:
+Minimal form:
 
-- Nombre.
+- Name.
 - Email.
-- Perfil.
-- Proyecto.
+- Profile.
+- Project.
 
-El backend debe invocar el agente y guardar estado en DynamoDB en fases posteriores.
+The backend must invoke the agent and save state in DynamoDB in later phases.
