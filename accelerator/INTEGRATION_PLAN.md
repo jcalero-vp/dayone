@@ -43,30 +43,57 @@ Antes de tocar el acelerador conviene tener:
 - Python 3.11+, `git` y el SDK de Strands instalado (Lab 2 completo: `agent/strands_agent.py` corre).
 - Docker disponible (el starter empaqueta el agente en contenedor para AgentCore Runtime).
 
+## Estructura real del starter (verificada)
+
+Rutas confirmadas contra `aws-samples/sample-strands-agentcore-starter` (clonado en `.aws-samples/`).
+Si el starter cambia, reconfirmá con:
+`grep -rn "Agent(" .aws-samples/sample-strands-agentcore-starter/agent --include="*.py"`.
+
+- `agent/my_agent.py` — define el agente: `app = BedrockAgentCoreApp()` y
+  `agent = Agent(model=..., system_prompt=..., tools=tools, ...)`. **Aquí se registran las tools.**
+- `agent/tools/` — tools de ejemplo del starter (`knowledge_base.py`, `web_search.py`,
+  `url_fetcher.py`, `weather.py`).
+- `cdk/` — infraestructura como código (CDK): `deploy-all.sh`, `bin/`, `lib/`. Crea Cognito,
+  DynamoDB, Bedrock Guardrail, Knowledge Base, AgentCore Memory y AgentCore Runtime.
+- `chatapp/` — UI web (FastAPI, se corre con `uvicorn app.main:app`).
+
 ## Runbook (Opción C — comandos concretos)
+
+Todos los comandos asumen que estás parado en la raíz del starter:
+`cd .aws-samples/sample-strands-agentcore-starter`.
 
 1. Clonar el starter (idempotente; queda en `.aws-samples/`, ya ignorado por git):
    ```bash
    bash accelerator/clone_aws_starter.sh
    ```
-2. Explorar su estructura y leer su README (la fuente de verdad de sus comandos):
+2. Instalar dependencias de infra y desplegar los stacks (crea Runtime, Memory, KB, Cognito, DynamoDB):
    ```bash
-   ls .aws-samples/sample-strands-agentcore-starter
-   ${PAGER:-less} .aws-samples/sample-strands-agentcore-starter/README.md
+   cd cdk && npm install
+   ./deploy-all.sh --region us-east-1 --profile <tu-perfil> --ingress furl
+   cd ..
    ```
-3. **Localizar** dónde se define el agente del starter (no asumir la ruta — buscarla):
+3. Llevar el dominio de onboarding al `agent/` del starter (sin acoplar repos): copiá desde ESTE repo
+   `agent/tools/*.py`, `agent/prompts.py`, `profiles/` y `projects/` dentro de `agent/` del starter.
+4. Registrar nuestras tools en `agent/my_agent.py`: importá las `@tool` de onboarding (las mismas de
+   `agent/strands_agent.py`: `load_profile`, `load_project`, `generate_onboarding_plan`,
+   `mark_step_done`), agregalas a la lista `tools` que recibe `Agent(...)`, y usá nuestro `SYSTEM_PROMPT`
+   (de `agent/prompts.py`) como `system_prompt`.
+5. Crear un usuario de prueba para la UI:
    ```bash
-   grep -rn "Agent(" .aws-samples/sample-strands-agentcore-starter --include="*.py"
-   grep -rn "from strands" .aws-samples/sample-strands-agentcore-starter --include="*.py"
+   cd chatapp/scripts
+   ./create-user.sh tu-email@example.com 'TuPassword123@' --admin
+   cd ../..
    ```
-4. Llevar el dominio de onboarding al starter sin acoplar repos: instalá este repo como dependencia
-   o copiá `agent/tools/`, `agent/prompts.py`, `profiles/` y `projects/`.
-5. Registrar las tools de onboarding en el `Agent` del starter — son las mismas `@tool` de
-   `agent/strands_agent.py` (`load_profile`, `load_project`, `generate_onboarding_plan`, `mark_step_done`).
-6. Probar local con el mecanismo del starter (su README indica el comando exacto; típicamente
-   FastAPI/uvicorn o un script/`make` de run).
-7. Empaquetar y desplegar a AgentCore Runtime con el starter toolkit (seguir el README del starter).
-8. Verificar trazas, logs y errores en CloudWatch / observabilidad de AgentCore.
+6. Probar local la UI (requiere los stacks ya desplegados; `sync-env` baja la config de Secrets Manager):
+   ```bash
+   cd chatapp
+   python3 -m venv .venv && source .venv/bin/activate
+   pip install -r requirements.txt
+   ./sync-env.sh --region us-east-1 --dev-mode     # --dev-mode bypassa Cognito
+   uvicorn app.main:app --reload --port 8080       # http://localhost:8080
+   ```
+7. Observabilidad: el agente ya emite trazas/logs (ver `agent/OBSERVABILITY.md` del starter) →
+   revisá CloudWatch / X-Ray y los stacks de analytics en DynamoDB.
 
 ## Criterio para avanzar
 

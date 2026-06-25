@@ -1,5 +1,7 @@
 # Onboarding AgentCore Workshop
 
+[![ci](https://github.com/rivadaviam/dayone/actions/workflows/ci.yml/badge.svg)](https://github.com/rivadaviam/dayone/actions/workflows/ci.yml)
+
 MVP de workshop para construir un asistente agéntico de onboarding de desarrolladores usando **Amazon Bedrock AgentCore**, **Strands Agents** y servicios AWS nativos.
 
 El objetivo del repo es servir como punto de partida para que el equipo aprenda a crear, ejecutar y desplegar un agente que, a partir de un empleado + perfil + proyecto, genere un plan de onboarding, explique repositorios, liste permisos esperados y registre progreso.
