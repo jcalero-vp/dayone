@@ -1,0 +1,11 @@
+# Core workshop dependencies
+PyYAML>=6.0.2
+pydantic>=2.8.0
+
+# Uncomment when running with the real Strands SDK / AgentCore environment.
+# strands-agents
+# bedrock-agentcore
+# bedrock-agentcore-starter-toolkit
+
+# Dev/test
+pytest>=8.0.0

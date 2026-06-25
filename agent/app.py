@@ -1,0 +1,41 @@
+from __future__ import annotations
+
+import argparse
+
+from agent.prompts import SYSTEM_PROMPT
+from agent.tools.load_profile import load_profile
+from agent.tools.load_project import load_project
+from agent.tools.generate_plan import generate_onboarding_plan
+
+
+def build_plan(employee: str, email: str, profile_id: str, project_id: str) -> str:
+    """Build an onboarding plan using local declarative inputs.
+
+    This function is deliberately framework-light so the workshop can run even
+    before installing Strands Agents. When integrating with Strands, expose these
+    functions as tools and use SYSTEM_PROMPT as the agent system prompt.
+    """
+    profile = load_profile(profile_id)
+    project = load_project(project_id)
+    return generate_onboarding_plan(employee, email, profile, project)
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description="Generate a developer onboarding plan.")
+    parser.add_argument("--employee", required=True, help="Employee full name")
+    parser.add_argument("--email", required=True, help="Employee email")
+    parser.add_argument("--profile", required=True, help="Profile id, e.g. backend-dev")
+    parser.add_argument("--project", required=True, help="Project id, e.g. payments-platform")
+    parser.add_argument("--show-system-prompt", action="store_true")
+    args = parser.parse_args()
+
+    if args.show_system_prompt:
+        print("# System prompt\n")
+        print(SYSTEM_PROMPT)
+        print("\n---\n")
+
+    print(build_plan(args.employee, args.email, args.profile, args.project))
+
+
+if __name__ == "__main__":
+    main()

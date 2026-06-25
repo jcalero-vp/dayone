@@ -1,0 +1,13 @@
+[project]
+name = "onboarding-agentcore-workshop"
+version = "0.1.0"
+description = "Workshop MVP for developer onboarding with Strands Agents and Amazon Bedrock AgentCore"
+requires-python = ">=3.11"
+dependencies = [
+  "PyYAML>=6.0.2",
+  "pydantic>=2.8.0"
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]

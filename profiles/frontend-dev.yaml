@@ -1,0 +1,27 @@
+id: frontend-dev
+name: Frontend Developer
+summary: Perfil para desarrolladores frontend que trabajarán en web apps, design system y consumo de APIs.
+permissions:
+  aws:
+    - staging-read
+    - cloudwatch-read
+  repositories:
+    access: read-write
+  ci_cd:
+    - view-build-logs
+    - trigger-preview-deploy
+base_checklist:
+  day_1:
+    - Confirmar acceso al repositorio frontend.
+    - Instalar Node.js recomendado.
+    - Ejecutar bootstrap local.
+    - Levantar aplicación en modo development.
+    - Validar conexión con APIs de staging.
+    - Abrir PR de documentación o primer fix simple.
+  week_1:
+    - Revisar estándares de componentes.
+    - Revisar flujo de diseño y QA.
+    - Revisar estrategia de testing frontend.
+approvals_required:
+  - production-deploy
+  - prod-secrets-read
