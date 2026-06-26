@@ -11,6 +11,12 @@ The goal of this repo is to serve as a starting point for the team to learn how 
 > and the AWS accelerator is **Lab 3**. Permissions, repos and state are **simulated** until later
 > phases. Full labs guide: [`docs/WORKSHOP_LABS.md`](docs/WORKSHOP_LABS.md).
 
+## Desired Product
+
+The output of this project is a developer-focused onboarding assistant application that helps new team members understand the context of a project in no time so the ramp up is smooth and quick. The assistant should guide a developer through the practical information they need when joining a project, such as required technical setup, local environment configuration, project setup instructions, required credentials, access to tools and boards, and links to relevant project documentation.
+
+Because onboarding needs can vary from project to project, the assistant should be flexible and driven by project-specific context. For example, one project might require a specific Node.js version, AWS access and Jira board access, while another project might require a different setup, credentials or documentation.
+
 ## MVP objectives
 
 - Learn AgentCore Runtime and Strands Agents with a realistic case.
