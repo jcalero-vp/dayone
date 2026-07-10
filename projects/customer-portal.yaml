@@ -1,0 +1,32 @@
+id: customer-portal
+name: Customer Portal
+business_goal: Web application that lets customers manage accounts, view billing, and access support services.
+architecture_summary: >
+  Single-page application built with React, backed by a backend-for-frontend API and a shared design system.
+repositories:
+  - name: customer-portal-web
+    description: React SPA for customer-facing portal features.
+    clone_url: https://git.example.internal/customer-portal/customer-portal-web.git
+    bootstrap: npm install
+    test: npm run test:ci
+  - name: customer-portal-api
+    description: Backend-for-frontend API for customer portal features and integrations.
+    clone_url: https://git.example.internal/customer-portal/customer-portal-api.git
+    bootstrap: make bootstrap
+    test: make test
+  - name: design-system
+    description: Shared component library and design tokens for the customer portal.
+    clone_url: https://git.example.internal/customer-portal/design-system.git
+    bootstrap: npm install
+    test: npm run test:ci
+key_docs:
+  - docs/customer-portal/architecture.md
+  - docs/customer-portal/local-development.md
+  - docs/customer-portal/design-system.md
+first_tasks:
+  - Update the README with missing frontend setup steps.
+  - Run the test suite and document environment errors.
+  - Review a recent PR on the customer-portal-web repo.
+risk_notes:
+  - Do not expose production customer data during onboarding.
+  - Production deployments require design lead sign-off.
