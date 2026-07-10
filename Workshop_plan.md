@@ -126,7 +126,7 @@ The local app currently calls `load_profile`, `load_project`, and `generate_onbo
 
 ### Phase 3 — Add progress tracking as a first-class MVP feature
 
-The README says the assistant should not only generate plans, but also track progress. ([GitHub][1])
+The README says the assistant should not only generate plans, but also track progress.
 
 Current progress tracking writes local JSON under `.local-progress/`, which is appropriate for the workshop MVP and can later map to DynamoDB.
 
@@ -202,7 +202,7 @@ Acceptance criteria:
 | Agent records progress | Uses `mark_step_done` only when requested                          |
 | Sensitive actions      | Agent explains or requests approval before write/high-risk actions |
 
-The notes explicitly separate read tools, generation tools, write tools, and dangerous tools; real user creation, production permission grants, reading production secrets, and production deploys should not run automatically in the MVP. ([GitHub][8])
+The notes explicitly separate read tools, generation tools, write tools, and dangerous tools; real user creation, production permission grants, reading production secrets, and production deploys should not run automatically in the MVP.
 
 ---
 
@@ -210,7 +210,7 @@ The notes explicitly separate read tools, generation tools, write tools, and dan
 
 After the Strands version works locally, package it for AgentCore Runtime. The README’s roadmap lists this as the AgentCore phase: package runtime, configure observability, invoke per session, and compare local vs. managed behavior. ([GitHub][1])
 
-Amazon describes AgentCore Runtime as a secure, serverless, purpose-built hosting environment for agents and tools. ([AWS Documentation][9])
+Amazon describes AgentCore Runtime as a secure, serverless, purpose-built hosting environment for agents and tools.
 
 Implementation steps:
 
