@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import sys
 
 from agent.prompts import SYSTEM_PROMPT
 from agent.tools.load_profile import load_profile
@@ -34,7 +35,11 @@ def main() -> None:
         print(SYSTEM_PROMPT)
         print("\n---\n")
 
-    print(build_plan(args.employee, args.email, args.profile, args.project))
+    try:
+        print(build_plan(args.employee, args.email, args.profile, args.project))
+    except FileNotFoundError as exc:
+        print(f"Error: {exc}", file=sys.stderr)
+        raise SystemExit(1)
 
 
 if __name__ == "__main__":
