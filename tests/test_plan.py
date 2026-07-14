@@ -1,10 +1,11 @@
 import json
 from pathlib import Path
+import sys
 
 import pytest
 from pydantic import ValidationError
 
-from agent.app import build_plan
+from agent.app import build_plan, main
 from agent.config import PROFILES_DIR, PROJECTS_DIR
 from agent.models import Profile, Project
 from agent.tools.generate_plan import generate_onboarding_plan
@@ -176,3 +177,24 @@ def test_mark_step_done_appends_and_timestamp(tmp_path, monkeypatch):
     state = json.loads(state_path.read_text(encoding="utf-8"))
     assert len(state["steps"]) == 2
     assert state["employee_email"] == "ada@example.com"
+
+
+def test_mark_step_cli(capsys, tmp_path, monkeypatch):
+    monkeypatch.setattr(track_progress_module, "PROGRESS_DIR", tmp_path)
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        ["agent", "mark-step", "--email", "ada@example.com", "--step-id", "clone-repos", "--note", "Done"],
+    )
+
+    main()
+
+    captured = capsys.readouterr()
+    assert "clone-repos" in captured.out
+    assert "completed_at" in captured.out
+
+    state_path = tmp_path / "ada_at_example.com.json"
+    state = json.loads(state_path.read_text(encoding="utf-8"))
+    assert len(state["steps"]) == 1
+    assert state["steps"][0]["step_id"] == "clone-repos"
+    assert state["steps"][0]["completed_at"].endswith("+00:00")
