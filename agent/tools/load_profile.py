@@ -1,8 +1,11 @@
 from pathlib import Path
 from typing import Any
+
 import yaml
+from pydantic import ValidationError
 
 from agent.config import PROFILES_DIR
+from agent.models import Profile
 
 
 def load_profile(profile_id: str) -> dict[str, Any]:
@@ -12,4 +15,11 @@ def load_profile(profile_id: str) -> dict[str, Any]:
         available = sorted(p.stem for p in Path(PROFILES_DIR).glob("*.yaml"))
         raise FileNotFoundError(f"Profile '{profile_id}' not found. Available: {available}")
     with path.open("r", encoding="utf-8") as f:
-        return yaml.safe_load(f)
+        raw = yaml.safe_load(f) or {}
+
+    try:
+        model = Profile.model_validate(raw)
+    except ValidationError as exc:
+        raise ValueError(f"Profile '{profile_id}' has invalid YAML: {exc}") from exc
+
+    return model.model_dump()
