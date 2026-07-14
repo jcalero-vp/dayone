@@ -19,12 +19,14 @@ def generate_onboarding_plan(
 
     repo_section = []
     for repo in repos:
+        name = repo.get("name", "<repo-name-pending>")
+        description = repo.get("description", "").strip()
         repo_section.append(
-            f"### {repo['name']}\n"
-            f"{repo.get('description', '')}\n\n"
+            f"### {name}\n"
+            f"{description}\n\n"
             f"```bash\n"
             f"git clone {repo.get('clone_url', '<clone-url-pending>')}\n"
-            f"cd {repo['name']}\n"
+            f"cd {name}\n"
             f"{repo.get('bootstrap', '# bootstrap pending')}\n"
             f"{repo.get('test', '# test command pending')}\n"
             f"```"
@@ -42,11 +44,11 @@ def generate_onboarding_plan(
 
 ## Project business goal
 
-{project.get('business_goal', 'Pending documentation.')}
+{project.get('business_goal', 'Pending documentation.').strip()}
 
 ## Architecture summary
 
-{project.get('architecture_summary', 'Pending documentation.')}
+{project.get('architecture_summary', 'Pending documentation.').strip()}
 
 ## Expected permissions
 

@@ -1,12 +1,19 @@
+import json
 from pathlib import Path
 
 import pytest
+from pydantic import ValidationError
 
 from agent.app import build_plan
 from agent.config import PROFILES_DIR, PROJECTS_DIR
+from agent.models import Profile, Project
 from agent.tools.generate_plan import generate_onboarding_plan
 from agent.tools.load_profile import load_profile
 from agent.tools.load_project import load_project
+from agent.tools.track_progress import mark_step_done
+import agent.tools.load_profile as load_profile_module
+import agent.tools.load_project as load_project_module
+import agent.tools.track_progress as track_progress_module
 
 
 def test_build_plan_contains_employee_and_project():
@@ -110,3 +117,62 @@ def test_sensitive_permissions_are_approvals():
         assert "Approvals required by profile" in plan
         for approval in profile["approvals_required"]:
             assert approval in plan
+
+
+def test_pydantic_profile_and_project_models():
+    for path in sorted(PROFILES_DIR.glob("*.yaml")):
+        profile = load_profile(path.stem)
+        model = Profile.model_validate(profile)
+        assert model.id == path.stem
+        assert model.name == profile["name"]
+
+    for path in sorted(PROJECTS_DIR.glob("*.yaml")):
+        project = load_project(path.stem)
+        model = Project.model_validate(project)
+        assert model.id == path.stem
+        assert model.name == project["name"]
+
+
+def test_invalid_profile_yaml_raises_value_error(tmp_path, monkeypatch):
+    monkeypatch.setattr(load_profile_module, "PROFILES_DIR", tmp_path)
+    bad_path = tmp_path / "bad.yaml"
+    bad_path.write_text("id: bad\nname: Missing fields\n", encoding="utf-8")
+
+    with pytest.raises(ValueError, match="Profile 'bad' has invalid YAML"):
+        load_profile("bad")
+
+
+def test_invalid_project_yaml_raises_value_error(tmp_path, monkeypatch):
+    monkeypatch.setattr(load_project_module, "PROJECTS_DIR", tmp_path)
+    bad_path = tmp_path / "bad.yaml"
+    bad_path.write_text("id: bad\nname: Missing fields\nunknown_field: value\n", encoding="utf-8")
+
+    with pytest.raises(ValueError, match="Project 'bad' has invalid YAML"):
+        load_project("bad")
+
+
+def test_pydantic_model_rejects_unknown_fields():
+    with pytest.raises(ValidationError):
+        Profile.model_validate({
+            "id": "test",
+            "name": "Test",
+            "summary": "Test",
+            "unknown_field": "should fail",
+        })
+
+
+def test_mark_step_done_appends_and_timestamp(tmp_path, monkeypatch):
+    monkeypatch.setattr(track_progress_module, "PROGRESS_DIR", tmp_path)
+
+    event1 = mark_step_done("ada@example.com", "clone-repos", "Done")
+    event2 = mark_step_done("ada@example.com", "run-tests", "All green")
+
+    assert event1["step_id"] == "clone-repos"
+    assert event2["step_id"] == "run-tests"
+    assert event1["completed_at"].endswith("+00:00")
+    assert event2["completed_at"].endswith("+00:00")
+
+    state_path = tmp_path / "ada_at_example.com.json"
+    state = json.loads(state_path.read_text(encoding="utf-8"))
+    assert len(state["steps"]) == 2
+    assert state["employee_email"] == "ada@example.com"

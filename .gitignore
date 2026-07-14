@@ -6,5 +6,6 @@ __pycache__/
 .aws-samples/
 .coverage
 .pytest_cache/
+.local-progress/
 dist/
 build/

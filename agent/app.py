@@ -37,7 +37,7 @@ def main() -> None:
 
     try:
         print(build_plan(args.employee, args.email, args.profile, args.project))
-    except FileNotFoundError as exc:
+    except (FileNotFoundError, ValueError) as exc:
         print(f"Error: {exc}", file=sys.stderr)
         raise SystemExit(1)
 
