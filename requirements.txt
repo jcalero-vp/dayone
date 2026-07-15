@@ -2,10 +2,11 @@
 PyYAML>=6.0.2
 pydantic>=2.8.0
 
-# Uncomment when running with the real Strands SDK / AgentCore environment.
-# strands-agents
-# bedrock-agentcore
-# bedrock-agentcore-starter-toolkit
+# Required for the real Strands SDK / AgentCore environment.
+strands-agents>=0.1.0
+bedrock-agentcore>=0.1.0
+bedrock-agentcore-starter-toolkit>=0.1.0
+python-dotenv>=1.0.0
 
 # Dev/test
 pytest>=8.0.0
