@@ -175,6 +175,39 @@ mark_step_done
 
 Those are wrapped as Strands tools and passed into a Strands `Agent` with the repo’s `SYSTEM_PROMPT`.
 
+Also expose the same onboarding capabilities through a small local API so the
+future backoffice UI can call stable HTTP endpoints instead of shelling out to
+the CLI. Keep the API thin: it should call the same tool/domain functions used
+by the CLI and Strands agent, not duplicate onboarding logic.
+
+Recommended API surface:
+
+```text
+GET  /health
+GET  /profiles
+GET  /profiles/{profile_id}
+GET  /projects
+GET  /projects/{project_id}
+POST /onboarding-plans
+POST /agent/onboarding-plans
+POST /progress/steps
+```
+
+Example request for `POST /onboarding-plans`:
+
+```json
+{
+  "employee_name": "Ada Lovelace",
+  "employee_email": "ada@example.com",
+  "profile_id": "backend-dev",
+  "project_id": "payments-platform"
+}
+```
+
+The response should return the generated Markdown plan plus enough structured
+metadata for a UI to render repositories, permissions, approvals, and progress
+status later.
+
 Implementation steps:
 
 ```bash
@@ -200,6 +233,9 @@ Acceptance criteria:
 | Agent loads project    | Uses `load_project` tool                                           |
 | Agent generates plan   | Uses `generate_onboarding_plan`                                    |
 | Agent records progress | Uses `mark_step_done` only when requested                          |
+| API exposes local tools | HTTP endpoints call the same functions used by CLI/Strands         |
+| UI-ready plan endpoint | `POST /onboarding-plans` returns generated plan data for a UI       |
+| Agent plan endpoint    | `POST /agent/onboarding-plans` invokes Strands + Bedrock           |
 | Sensitive actions      | Agent explains or requests approval before write/high-risk actions |
 
 The notes explicitly separate read tools, generation tools, write tools, and dangerous tools; real user creation, production permission grants, reading production secrets, and production deploys should not run automatically in the MVP.

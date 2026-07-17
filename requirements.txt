@@ -1,6 +1,9 @@
 # Core workshop dependencies
 PyYAML>=6.0.2
 pydantic>=2.8.0
+fastapi>=0.115.0
+uvicorn>=0.30.0
+email-validator>=2.2.0
 
 # Required for the real Strands SDK / AgentCore environment.
 strands-agents>=0.1.0
