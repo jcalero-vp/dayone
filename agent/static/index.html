@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Onboarding Plan</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="workspace">
+        <aside class="control-panel" aria-labelledby="form-title">
+          <div class="panel-heading">
+            <p class="eyebrow">Backoffice</p>
+            <h1 id="form-title">Onboarding plan</h1>
+          </div>
+
+          <form id="plan-form" class="form-grid">
+            <label>
+              <span>Name</span>
+              <input
+                id="employee-name"
+                name="employee_name"
+                type="text"
+                autocomplete="name"
+                placeholder="Ada Lovelace"
+                required
+              />
+            </label>
+
+            <label>
+              <span>Email</span>
+              <input
+                id="employee-email"
+                name="employee_email"
+                type="email"
+                autocomplete="email"
+                placeholder="ada@example.com"
+                required
+              />
+            </label>
+
+            <label>
+              <span>Profile</span>
+              <select id="profile-id" name="profile_id" required>
+                <option value="">Loading profiles...</option>
+              </select>
+            </label>
+
+            <label>
+              <span>Project</span>
+              <select id="project-id" name="project_id" required>
+                <option value="">Loading projects...</option>
+              </select>
+            </label>
+
+            <button id="generate-button" type="submit">
+              <span id="button-label">Generate plan</span>
+            </button>
+          </form>
+
+          <p id="status-message" class="status-message" role="status" aria-live="polite"></p>
+        </aside>
+
+        <section class="result-panel" aria-labelledby="result-title">
+          <div class="result-toolbar">
+            <div>
+              <p class="eyebrow">Generated output</p>
+              <h2 id="result-title">Markdown plan</h2>
+            </div>
+            <span id="source-pill" class="source-pill">Waiting</span>
+          </div>
+
+          <article id="markdown-output" class="markdown-output empty-state">
+            <h2>Ready for an onboarding plan</h2>
+            <p>Fill the form and generate a plan with the AI agent endpoint.</p>
+          </article>
+        </section>
+      </section>
+    </main>
+
+    <script src="/static/app.js"></script>
+  </body>
+</html>
