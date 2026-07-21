@@ -7,11 +7,17 @@ from typing import Any
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, EmailStr, Field
 
-from agent.app import build_plan
-from agent.config import PROFILES_DIR, PROJECTS_DIR
-from agent.tools.load_profile import load_profile
-from agent.tools.load_project import load_project
-import agent.tools.track_progress as progress_tools
+try:
+    from .app import build_plan
+    from .config import PROFILES_DIR, PROJECTS_DIR
+    from .tools.load_profile import load_profile
+    from .tools.load_project import load_project
+except ImportError:  # pragma: no cover - allows running the module directly
+    from app import build_plan
+    from config import PROFILES_DIR, PROJECTS_DIR
+    from tools.load_profile import load_profile
+    from tools.load_project import load_project
+import .tools.track_progress as progress_tools
 
 
 app = FastAPI(
@@ -38,13 +44,6 @@ def build_strands_agent() -> Any:
     from agent.strands_agent import build_agent
 
     return build_agent()
-
-
-def run_strands_request(prompt: str) -> str:
-    from agent.strands_agent import process_request
-
-    agent = build_strands_agent()
-    return process_request(prompt, agent=agent)
 
 
 def _raise_domain_error(exc: Exception) -> None:
@@ -168,7 +167,7 @@ def create_agent_onboarding_plan(request: OnboardingPlanRequest) -> dict[str, An
         raise HTTPException(status_code=422, detail=str(exc)) from exc
 
     try:
-        result = run_strands_request(prompt)
+        result = agent(prompt)
     except Exception as exc:
         raise HTTPException(status_code=502, detail=f"Strands agent invocation failed: {exc}") from exc
 

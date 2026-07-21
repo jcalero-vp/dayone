@@ -27,12 +27,22 @@ import json
 import os
 from typing import Any, Optional
 
-from agent.config import load_runtime_config
-from agent.prompts import SYSTEM_PROMPT
-from agent.tools.load_profile import load_profile as _load_profile
-from agent.tools.load_project import load_project as _load_project
-from agent.tools.generate_plan import generate_onboarding_plan as _generate_onboarding_plan
-from agent.tools.track_progress import mark_step_done as _mark_step_done
+from bedrock_agentcore import BedrockAgentCoreApp
+
+try:
+    from .config import load_runtime_config
+    from .prompts import SYSTEM_PROMPT
+    from .tools.load_profile import load_profile as _load_profile
+    from .tools.load_project import load_project as _load_project
+    from .tools.generate_plan import generate_onboarding_plan as _generate_onboarding_plan
+    from .tools.track_progress import mark_step_done as _mark_step_done
+except ImportError:  # pragma: no cover - allows running the file directly
+    from config import load_runtime_config
+    from prompts import SYSTEM_PROMPT
+    from tools.load_profile import load_profile as _load_profile
+    from tools.load_project import load_project as _load_project
+    from tools.generate_plan import generate_onboarding_plan as _generate_onboarding_plan
+    from tools.track_progress import mark_step_done as _mark_step_done
 
 try:
     from strands import Agent, tool
@@ -92,6 +102,9 @@ def mark_step_done(employee_email: str, step_id: str, note: str = "") -> dict:
     return _mark_step_done(employee_email, step_id, note)
 
 
+app = BedrockAgentCoreApp()
+
+
 def build_agent() -> Agent:
     """Build the Strands agent with a Bedrock model + onboarding tools."""
     config = load_runtime_config()
@@ -111,18 +124,13 @@ def build_agent() -> Agent:
     )
 
 
-def handle_agent_request(agent: Agent, prompt: str) -> str:
-    """Send a prompt to the agent and return the text response."""
-    return str(agent(prompt))
-
-
 def build_request_payload(
     employee_name: str,
     employee_email: str,
     profile_id: str,
     project_id: str,
 ) -> dict[str, Any]:
-    """Create a structured payload for single-request runtime use."""
+    """Create a structured payload for runtime use."""
     return {
         "employee_name": employee_name,
         "employee_email": employee_email,
@@ -141,42 +149,28 @@ def build_initial_prompt(payload: dict[str, Any]) -> str:
     )
 
 
-def process_request(prompt: str, agent: Optional[Agent] = None) -> str:
-    """Runtime-friendly entrypoint helper for a single inbound request."""
-    if agent is None:
-        agent = build_agent()
-    return handle_agent_request(agent, prompt)
-
-
 def process_payload(payload: dict[str, Any], agent: Optional[Agent] = None) -> str:
     """Handle a structured runtime payload and return the agent response."""
-    prompt = build_initial_prompt(payload)
-    return process_request(prompt, agent=agent)
+    if agent is None:
+        agent = build_agent()
+    return str(agent(build_initial_prompt(payload)))
 
 
-def run_console_session(agent: Agent, initial_prompt: str) -> None:
-    """Run the interactive console loop for local development."""
-    print("Assistant ready. Type your message and press Enter. Type 'exit' to quit.\n")
-    print("Initial prompt:")
-    print(handle_agent_request(agent, initial_prompt))
-    print("\n---\n")
+def handle_runtime_request(payload: dict[str, Any], agent: Optional[Agent] = None) -> dict[str, Any]:
+    """Return a structured response object for a runtime host."""
+    response_text = process_payload(payload, agent=agent)
+    return {
+        "status": "ok",
+        "payload": payload,
+        "response": response_text,
+    }
 
-    while True:
-        try:
-            user_input = input("You: ").strip()
-        except EOFError:
-            print("\nSession ended.")
-            break
 
-        if not user_input:
-            continue
-        if user_input.lower() in {"exit", "quit", "bye"}:
-            print("Assistant: Goodbye!")
-            break
-
-        response = handle_agent_request(agent, user_input)
-        print(f"Assistant: {response}")
-        print()
+@app.entrypoint
+def handler(payload: dict[str, Any], context: Any) -> dict[str, Any]:
+    """Main AgentCore entrypoint for onboarding requests."""
+    agent = build_agent()
+    return handle_runtime_request(payload, agent=agent)
 
 
 def main() -> None:
@@ -190,16 +184,14 @@ def main() -> None:
     args = parser.parse_args()
 
     agent = build_agent()
-
     request_payload = build_request_payload(
         employee_name=args.employee,
         employee_email=args.email,
         profile_id=args.profile,
         project_id=args.project,
     )
-    initial_prompt = build_initial_prompt(request_payload)
-
-    run_console_session(agent, initial_prompt)
+    result = handle_runtime_request(request_payload, agent=agent)
+    print(json.dumps(result, indent=2))
 
 
 if __name__ == "__main__":

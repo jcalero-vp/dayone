@@ -7,6 +7,7 @@ from pydantic import ValidationError
 
 from agent.app import build_plan, main
 from agent.config import PROFILES_DIR, PROJECTS_DIR, load_runtime_config
+from agent.strands_agent import build_request_payload
 from agent.models import Profile, Project
 from agent.tools.generate_plan import generate_onboarding_plan
 from agent.tools.load_profile import load_profile
@@ -219,3 +220,19 @@ def test_runtime_config_requires_region_and_model(tmp_path):
 
     with pytest.raises(ValueError, match="Missing required configuration"):
         load_runtime_config(dotenv_path=dotenv_path)
+
+
+def test_build_request_payload_has_expected_fields():
+    payload = build_request_payload(
+        employee_name="Ada Lovelace",
+        employee_email="ada@example.com",
+        profile_id="backend-dev",
+        project_id="payments-platform",
+    )
+
+    assert payload == {
+        "employee_name": "Ada Lovelace",
+        "employee_email": "ada@example.com",
+        "profile_id": "backend-dev",
+        "project_id": "payments-platform",
+    }
