@@ -5,7 +5,14 @@ description = "Workshop MVP for developer onboarding with Strands Agents and Ama
 requires-python = ">=3.11"
 dependencies = [
   "PyYAML>=6.0.2",
-  "pydantic>=2.8.0"
+  "pydantic>=2.8.0",
+  "fastapi>=0.115.0",
+  "uvicorn>=0.30.0",
+  "email-validator>=2.2.0",
+  "strands-agents>=0.1.0",
+  "bedrock-agentcore>=0.1.0",
+  "bedrock-agentcore-starter-toolkit>=0.1.0",
+  "python-dotenv>=1.0.0"
 ]
 
 [tool.pytest.ini_options]

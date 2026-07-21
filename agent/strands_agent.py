@@ -25,6 +25,7 @@ from __future__ import annotations
 import argparse
 import os
 
+from agent.config import load_runtime_config
 from agent.prompts import SYSTEM_PROMPT
 from agent.tools.load_profile import load_profile as _load_profile
 from agent.tools.load_project import load_project as _load_project
@@ -38,9 +39,8 @@ except ImportError as exc:  # pragma: no cover - only triggers without the SDK i
     raise SystemExit(
         "\n[onboard-assistant] The Strands SDK is not installed.\n"
         "This is the 'real agent' path of the workshop (Lab 2).\n"
-        "  1) Uncomment 'strands-agents' and 'bedrock-agentcore' in requirements.txt\n"
-        "     (or install: pip install strands-agents bedrock-agentcore).\n"
-        "  2) Configure AWS credentials and Bedrock model access (.env).\n"
+        "  1) Install the dependencies from requirements.txt.\n"
+        "  2) Configure AWS credentials and Bedrock model access in .env.\n"
         "  3) For the LOCAL path without the SDK use: python -m agent.app ...\n"
         f"  (import detail: {exc})\n"
     )
@@ -92,11 +92,10 @@ def mark_step_done(employee_email: str, step_id: str, note: str = "") -> dict:
 
 def build_agent() -> Agent:
     """Build the Strands agent with a Bedrock model + onboarding tools."""
+    config = load_runtime_config()
     model = BedrockModel(
-        model_id=os.environ.get(
-            "BEDROCK_MODEL_ID", "anthropic.claude-3-5-sonnet-20241022-v2:0"
-        ),
-        region_name=os.environ.get("AWS_REGION", "us-east-1"),
+        model_id=config["BEDROCK_MODEL_ID"],
+        region_name=config["AWS_REGION"],
     )
     return Agent(
         model=model,

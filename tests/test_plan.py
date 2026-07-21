@@ -6,7 +6,7 @@ import pytest
 from pydantic import ValidationError
 
 from agent.app import build_plan, main
-from agent.config import PROFILES_DIR, PROJECTS_DIR
+from agent.config import PROFILES_DIR, PROJECTS_DIR, load_runtime_config
 from agent.models import Profile, Project
 from agent.tools.generate_plan import generate_onboarding_plan
 from agent.tools.load_profile import load_profile
@@ -198,3 +198,24 @@ def test_mark_step_cli(capsys, tmp_path, monkeypatch):
     assert len(state["steps"]) == 1
     assert state["steps"][0]["step_id"] == "clone-repos"
     assert state["steps"][0]["completed_at"].endswith("+00:00")
+
+
+def test_runtime_config_loads_dotenv_values(tmp_path):
+    dotenv_path = tmp_path / ".env"
+    dotenv_path.write_text(
+        "AWS_REGION=eu-west-1\nBEDROCK_MODEL_ID=anthropic.claude-3-5-haiku-latest\n",
+        encoding="utf-8",
+    )
+
+    config = load_runtime_config(dotenv_path=dotenv_path)
+
+    assert config["AWS_REGION"] == "eu-west-1"
+    assert config["BEDROCK_MODEL_ID"] == "anthropic.claude-3-5-haiku-latest"
+
+
+def test_runtime_config_requires_region_and_model(tmp_path):
+    dotenv_path = tmp_path / ".env"
+    dotenv_path.write_text("AWS_REGION=\n", encoding="utf-8")
+
+    with pytest.raises(ValueError, match="Missing required configuration"):
+        load_runtime_config(dotenv_path=dotenv_path)
