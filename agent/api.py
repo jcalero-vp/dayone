@@ -65,6 +65,31 @@ def _build_agent_prompt(request: OnboardingPlanRequest) -> str:
     )
 
 
+def _build_plan_payload(request: OnboardingPlanRequest) -> dict[str, Any]:
+    profile = load_profile(request.profile_id)
+    project = load_project(request.project_id)
+    plan_markdown = build_plan(
+        employee=request.employee_name,
+        email=str(request.employee_email),
+        profile_id=request.profile_id,
+        project_id=request.project_id,
+    )
+
+    return {
+        "employee_name": request.employee_name,
+        "employee_email": str(request.employee_email),
+        "profile_id": request.profile_id,
+        "project_id": request.project_id,
+        "plan_markdown": plan_markdown,
+        "profile": profile,
+        "project": project,
+        "repositories": project["repositories"],
+        "permissions": profile["permissions"],
+        "approvals_required": profile["approvals_required"],
+        "progress": _load_progress(str(request.employee_email)),
+    }
+
+
 @app.get("/health")
 def health() -> dict[str, str]:
     return {"status": "ok"}
@@ -123,42 +148,23 @@ def get_project(project_id: str) -> dict[str, Any]:
 @app.post("/onboarding-plans")
 def create_onboarding_plan(request: OnboardingPlanRequest) -> dict[str, Any]:
     try:
-        profile = load_profile(request.profile_id)
-        project = load_project(request.project_id)
-        plan_markdown = build_plan(
-            employee=request.employee_name,
-            email=str(request.employee_email),
-            profile_id=request.profile_id,
-            project_id=request.project_id,
-        )
+        return _build_plan_payload(request)
     except (FileNotFoundError, ValueError) as exc:
         _raise_domain_error(exc)
         raise
-
-    return {
-        "employee_name": request.employee_name,
-        "employee_email": str(request.employee_email),
-        "profile_id": request.profile_id,
-        "project_id": request.project_id,
-        "plan_markdown": plan_markdown,
-        "profile": profile,
-        "project": project,
-        "repositories": project["repositories"],
-        "permissions": profile["permissions"],
-        "approvals_required": profile["approvals_required"],
-        "progress": _load_progress(str(request.employee_email)),
-    }
 
 
 @app.post("/agent/onboarding-plans")
 def create_agent_onboarding_plan(request: OnboardingPlanRequest) -> dict[str, Any]:
     prompt = _build_agent_prompt(request)
     try:
+        plan_payload = _build_plan_payload(request)
         agent = build_strands_agent()
     except SystemExit as exc:
         raise HTTPException(status_code=503, detail=str(exc)) from exc
-    except ValueError as exc:
-        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    except (FileNotFoundError, ValueError) as exc:
+        _raise_domain_error(exc)
+        raise
 
     try:
         result = agent(prompt)
@@ -166,12 +172,10 @@ def create_agent_onboarding_plan(request: OnboardingPlanRequest) -> dict[str, An
         raise HTTPException(status_code=502, detail=f"Strands agent invocation failed: {exc}") from exc
 
     return {
+        **plan_payload,
         "mode": "strands",
-        "employee_name": request.employee_name,
-        "employee_email": str(request.employee_email),
-        "profile_id": request.profile_id,
-        "project_id": request.project_id,
         "agent_response": str(result),
+        "plan_markdown_source": "local_tool_result",
     }
 
 
