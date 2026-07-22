@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 from pathlib import Path
 from typing import Any
 
@@ -9,6 +8,7 @@ from pydantic import BaseModel, EmailStr, Field
 
 from agent.app import build_plan
 from agent.config import PROFILES_DIR, PROJECTS_DIR
+from agent.session import invoke_session
 from agent.tools.load_profile import load_profile
 from agent.tools.load_project import load_project
 import agent.tools.track_progress as progress_tools
@@ -34,6 +34,15 @@ class ProgressStepRequest(BaseModel):
     note: str = ""
 
 
+class SessionRequest(BaseModel):
+    employee_name: str = Field(min_length=1)
+    employee_email: EmailStr
+    profile_id: str = Field(min_length=1)
+    project_id: str = Field(min_length=1)
+    record_step_id: str = ""
+    record_step_note: str = ""
+
+
 def build_strands_agent() -> Any:
     from agent.strands_agent import build_agent
 
@@ -49,10 +58,7 @@ def _raise_domain_error(exc: Exception) -> None:
 
 
 def _load_progress(employee_email: str) -> dict[str, Any]:
-    path = Path(progress_tools.PROGRESS_DIR) / f"{employee_email.replace('@', '_at_')}.json"
-    if not path.exists():
-        return {"employee_email": employee_email, "steps": []}
-    return json.loads(path.read_text(encoding="utf-8"))
+    return progress_tools.load_progress(employee_email)
 
 
 def _build_agent_prompt(request: OnboardingPlanRequest) -> str:
@@ -191,3 +197,25 @@ def mark_progress_step(request: ProgressStepRequest) -> dict[str, Any]:
         "event": event,
         "progress": _load_progress(str(request.employee_email)),
     }
+
+
+@app.post("/sessions")
+def create_session(request: SessionRequest) -> dict[str, Any]:
+    """Run a complete onboarding session in one call.
+
+    This is the per-session invocation point for AgentCore Runtime: a single
+    HTTP call produces a session id, the generated Markdown plan, and optional
+    progress tracking.
+    """
+    try:
+        return invoke_session(
+            employee_name=request.employee_name,
+            employee_email=str(request.employee_email),
+            profile_id=request.profile_id,
+            project_id=request.project_id,
+            record_step_id=request.record_step_id or None,
+            record_step_note=request.record_step_note,
+        )
+    except (FileNotFoundError, ValueError) as exc:
+        _raise_domain_error(exc)
+        raise

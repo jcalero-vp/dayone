@@ -257,6 +257,16 @@ Implementation steps:
 5. Add CloudWatch/X-Ray observability checks.
 6. Test session-based invocation.
 
+Concrete Phase 5 artifacts in this repo:
+
+- `agent/session.py` and `POST /sessions` in `agent/api.py` expose per-session invocation.
+- `agent/observability.py` adds CloudWatch-ready JSON logging/metrics stubs for runtime telemetry.
+- `accelerator/prepare_starter.py` implements step 3 by copying the onboarding domain (`agent/tools/*.py`, models, prompts, memory backend, `profiles/`, `projects/`) into the starter's `agent/` directory (the only path packaged by the CDK Agent stack's Docker/CodeBuild source) and patching `agent/my_agent.py` to register `load_profile`, `load_project`, `generate_onboarding_plan` and `mark_step_done`.
+- `accelerator/deploy_starter.sh` implements step 2 by cloning/preparing the starter, installing CDK dependencies and running `./deploy-all.sh` to create the AgentCore Runtime, memory, KB, Cognito and DynamoDB stacks.
+- `agent/memory_backend.py` persists onboarding progress to **AgentCore Memory** (`MEMORY_ID`/`BEDROCK_AGENTCORE_MEMORY_ID`, the same resource/env var the starter's own `MemoryHook` uses) instead of only a local JSON file. This matters because AgentCore Runtime containers are ephemeral and can scale horizontally: a local-file-only implementation would not durably track progress across separate `/sessions` invocations. `agent/tools/track_progress.py` falls back to the local file when Memory isn't configured (CLI/workshop path), and `agent/session.py`'s response now includes the full accumulated `progress`, not just the current call's event.
+- `tests/test_runtime.py`, `tests/test_accelerator.py` and `tests/test_memory_backend.py` verify session packaging, starter tool registration, and durable progress persistence (including a simulated “separate container” scenario).
+- `Dockerfile` now runs the FastAPI API on port 8080 so the container is suitable for AgentCore Runtime / Fargate / Lambda Web Adapter.
+
 I would follow the repo’s **Option C recommendation**: keep the AWS starter for infrastructure, UI, and deployment, and keep this repo for domain exercises, profiles, tools, and workshop documentation.
 
 ---
