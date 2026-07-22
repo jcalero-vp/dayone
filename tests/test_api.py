@@ -17,6 +17,25 @@ def test_health_endpoint():
     assert response.json() == {"status": "ok"}
 
 
+def test_ui_root_serves_onboarding_form():
+    response = client.get("/")
+
+    assert response.status_code == 200
+    assert "Onboarding plan" in response.text
+    assert 'id="employee-name"' in response.text
+    assert 'id="employee-email"' in response.text
+    assert 'id="profile-id"' in response.text
+    assert 'id="project-id"' in response.text
+
+
+def test_ui_assets_reference_agent_endpoint():
+    response = client.get("/static/app.js")
+
+    assert response.status_code == 200
+    assert "/agent/onboarding-plans" in response.text
+    assert "plan_markdown" in response.text
+
+
 def test_profile_and_project_endpoints():
     profiles_response = client.get("/profiles")
     projects_response = client.get("/projects")

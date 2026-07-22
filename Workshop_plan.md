@@ -225,6 +225,48 @@ python -m agent.strands_agent \
   --project payments-platform
 ```
 
+#### API implementation
+
+Expose the same tool functions through a small FastAPI app in `agent/api.py`:
+
+```text
+GET  /health
+GET  /profiles
+GET  /profiles/{profile_id}
+GET  /projects
+GET  /projects/{project_id}
+POST /onboarding-plans
+POST /agent/onboarding-plans
+POST /progress/steps
+```
+
+Run the API locally:
+
+```bash
+python -m uvicorn agent.api:app --reload --port 8000
+```
+
+Example `POST /onboarding-plans` request:
+
+```json
+{
+  "employee_name": "Ada Lovelace",
+  "employee_email": "ada@example.com",
+  "profile_id": "backend-dev",
+  "project_id": "payments-platform"
+}
+```
+
+The response returns the generated Markdown plan plus structured metadata (`profile`, `project`, `repositories`, `permissions`, `approvals_required`, `progress`) for a UI to render. The `/agent/onboarding-plans` endpoint invokes the Strands `Agent` with the same prompt and returns the agent response alongside the local tool output.
+
+Keep the API thin: it should import and call `load_profile`, `load_project`, `build_plan`, and `mark_step_done` instead of duplicating onboarding logic.
+
+Run the API tests:
+
+```bash
+pytest tests/test_api.py
+```
+
 Acceptance criteria:
 
 | Check                  | Expected result                                                    |
