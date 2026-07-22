@@ -5,10 +5,12 @@ from pathlib import Path
 from typing import Any
 
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, EmailStr, Field
 
 from agent.app import build_plan
-from agent.config import PROFILES_DIR, PROJECTS_DIR
+from agent.config import PROFILES_DIR, PROJECTS_DIR, REPO_ROOT
 from agent.tools.load_profile import load_profile
 from agent.tools.load_project import load_project
 import agent.tools.track_progress as progress_tools
@@ -19,6 +21,8 @@ app = FastAPI(
     description="Thin HTTP API over the workshop onboarding domain functions.",
     version="0.1.0",
 )
+STATIC_DIR = REPO_ROOT / "agent" / "static"
+app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
 
 class OnboardingPlanRequest(BaseModel):
@@ -93,6 +97,11 @@ def _build_plan_payload(request: OnboardingPlanRequest) -> dict[str, Any]:
 @app.get("/health")
 def health() -> dict[str, str]:
     return {"status": "ok"}
+
+
+@app.get("/", include_in_schema=False)
+def ui() -> FileResponse:
+    return FileResponse(STATIC_DIR / "index.html")
 
 
 @app.get("/profiles")
