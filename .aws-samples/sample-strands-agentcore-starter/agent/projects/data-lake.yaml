@@ -1,0 +1,32 @@
+id: data-lake
+name: Data Lake
+business_goal: Centralized data platform for analytics, reporting, and machine learning workloads.
+architecture_summary: >
+  Data ingestion pipelines, S3-based data lake, Glue catalog, Athena queries, and an ML feature store.
+repositories:
+  - name: data-lake-pipelines
+    description: Ingestion and transformation jobs for the data lake.
+    clone_url: https://git.example.internal/data-lake/data-lake-pipelines.git
+    bootstrap: make bootstrap
+    test: make test
+  - name: data-lake-catalog
+    description: Glue catalog, schema definitions, and data lineage documentation.
+    clone_url: https://git.example.internal/data-lake/data-lake-catalog.git
+    bootstrap: make setup
+    test: make validate
+  - name: data-lake-ml
+    description: Machine learning feature store and model training utilities.
+    clone_url: https://git.example.internal/data-lake/data-lake-ml.git
+    bootstrap: make bootstrap
+    test: make test
+key_docs:
+  - docs/data-lake/architecture.md
+  - docs/data-lake/runbook.md
+  - docs/data-lake/local-development.md
+first_tasks:
+  - Update the README with missing data setup steps.
+  - Run the test suite and document environment errors.
+  - Review a recent PR on the data-lake-pipelines repo.
+risk_notes:
+  - Do not write to production data lakes during onboarding.
+  - Sensitive data access requires data steward approval.
