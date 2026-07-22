@@ -66,33 +66,47 @@ All commands assume you're standing in the starter's root:
    ```bash
    bash accelerator/clone_aws_starter.sh
    ```
-2. Install infra dependencies and deploy the stacks (creates Runtime, Memory, KB, Cognito, DynamoDB):
+2. Prepare the starter with the onboarding domain and register the tools automatically:
    ```bash
-   cd cdk && npm install
-   ./deploy-all.sh --region us-east-1 --profile <your-profile> --ingress furl
-   cd ..
+   python accelerator/prepare_starter.py
    ```
-3. Bring the onboarding domain into the starter's `agent/` (without coupling repos): copy from THIS
-   repo `agent/tools/*.py`, `agent/prompts.py`, `profiles/` and `projects/` into the starter's `agent/`.
-4. Register our tools in `agent/my_agent.py`: import the onboarding `@tool`s (the same ones from
-   `agent/strands_agent.py`: `load_profile`, `load_project`, `generate_onboarding_plan`,
-   `mark_step_done`), add them to the `tools` list passed to `Agent(...)`, and use our `SYSTEM_PROMPT`
-   (from `agent/prompts.py`) as `system_prompt`.
-5. Create a test user for the UI:
+   This copies `agent/tools/*.py`, `agent/models.py`, `agent/prompts.py`, `agent/memory_backend.py`,
+   `profiles/` and `projects/` into the starter's `agent/` directory (renamed to `onboarding_*` to
+   avoid clashing with the starter's own `agent/config.py`), generates an `onboarding_config.py`
+   with paths relative to the starter's flat `agent/` layout, and patches `agent/my_agent.py` to
+   import and register `load_profile`, `load_project`, `generate_onboarding_plan` and
+   `mark_step_done`.
+
+   Everything lands **inside** `agent/` on purpose: the CDK Agent stack only packages the `agent/`
+   directory as the Docker/CodeBuild source
+   (`cdk/lib/agent-stack.ts` → `s3deploy.Source.asset(path.join(__dirname, '../../agent'))`), so
+   anything placed as a sibling of `agent/` would silently be excluded from the deployed image.
+
+   **Onboarding progress persistence:** `agent/tools/track_progress.py` (via
+   `onboarding_memory_backend.py`) persists progress to **AgentCore Memory** when
+   `MEMORY_ID` / `BEDROCK_AGENTCORE_MEMORY_ID` is set — the same env var the starter's own
+   `config.py` and `MemoryHook` already use, and the same Memory resource the CDK Bedrock stack
+   provisions. This is required for correctness in AgentCore Runtime: containers are ephemeral and
+   may scale horizontally, so a local JSON file (the CLI/workshop fallback) would not be visible
+   across separate `/sessions` invocations. No extra configuration is needed beyond what
+   `deploy-all.sh` already wires up.
+3. (Optional review) Inspect the patched `agent/my_agent.py` and its backup before deploying.
+4. Deploy the AWS infrastructure (creates Runtime, Memory, KB, Cognito, DynamoDB):
    ```bash
-   cd chatapp/scripts
-   ./create-user.sh your-email@example.com 'YourPassword123@' --admin
-   cd ../..
+   bash accelerator/deploy_starter.sh
    ```
-6. Test the UI locally (requires the stacks already deployed; `sync-env` pulls config from Secrets Manager):
+   This runs `prepare_starter.py`, installs CDK dependencies, executes `./deploy-all.sh`,
+   and creates an admin test user. Set `AWS_REGION`, `AWS_PROFILE`, `TEST_EMAIL` and
+   `TEST_PASSWORD` as needed; `BEDROCK_MODEL_ID` should already be in `.env`.
+5. Test the UI locally (requires the stacks already deployed; `sync-env` pulls config from Secrets Manager):
    ```bash
-   cd chatapp
+   cd .aws-samples/sample-strands-agentcore-starter/chatapp
    python3 -m venv .venv && source .venv/bin/activate
    pip install -r requirements.txt
    ./sync-env.sh --region us-east-1 --dev-mode     # --dev-mode bypasses Cognito
    uvicorn app.main:app --reload --port 8080       # http://localhost:8080
    ```
-7. Observability: the agent already emits traces/logs (see the starter's `agent/OBSERVABILITY.md`) →
+6. Observability: the agent already emits traces/logs (see the starter's `agent/OBSERVABILITY.md`) →
    check CloudWatch / X-Ray and the analytics stacks in DynamoDB.
 
 ## Criterion to move forward

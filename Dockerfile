@@ -5,4 +5,5 @@ COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
-CMD ["python", "-m", "agent.app", "--employee", "Demo User", "--email", "demo@example.com", "--profile", "backend-dev", "--project", "payments-platform"]
+EXPOSE 8080
+CMD ["python", "-m", "uvicorn", "agent.api:app", "--host", "0.0.0.0", "--port", "8080"]

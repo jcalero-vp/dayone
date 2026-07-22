@@ -1,0 +1,32 @@
+id: qa-engineer
+name: QA Engineer
+summary: Profile for QA engineers who will validate features, automate tests, and maintain quality gates across the platform.
+permissions:
+  aws:
+    - staging-read
+    - cloudwatch-read
+    - test-automation-runner
+  repositories:
+    access: read-write
+  ci_cd:
+    - view-build-logs
+    - trigger-preview-deploy
+    - trigger-staging-test-suite
+    - view-test-reports
+base_checklist:
+  day_1:
+    - Confirm access to the QA and test repositories.
+    - Install the recommended test tooling and Node.js/Python version.
+    - Run local bootstrap and validate the test environment.
+    - Run the project test suite.
+    - Validate a staging environment against test cases.
+    - Open a bug report or a documentation PR.
+  week_1:
+    - Review the test pyramid and automation framework.
+    - Review the design and QA flow.
+    - Review the CI/CD quality gates and flaky-test policy.
+    - Understand incident runbooks and escalation path.
+approvals_required:
+  - production-deploy
+  - prod-secrets-read
+  - admin-access
